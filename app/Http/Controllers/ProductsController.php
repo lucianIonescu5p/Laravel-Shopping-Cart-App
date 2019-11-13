@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Product;
-use Illuminate\Http\Request;
 
 class ProductsController extends Controller
 {
@@ -15,7 +14,7 @@ class ProductsController extends Controller
     public function index()
     {
         if (session('auth') === true) {
-            return view('products.index');
+            return view('products.index', ['products' => Product::all()]);
         } else {
             return redirect('/login?unauthorized');
         }
@@ -28,7 +27,7 @@ class ProductsController extends Controller
      */
     public function create()
     {
-        //
+        return view('products.create');
     }
 
     /**
@@ -37,9 +36,11 @@ class ProductsController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store()
     {
-        //
+        Product::create(request(['title', 'description', 'price']));
+
+        return redirect('/products');
     }
 
     /**
@@ -61,7 +62,7 @@ class ProductsController extends Controller
      */
     public function edit(Product $product)
     {
-        //
+        return view('products.edit' ,compact('product'));
     }
 
     /**
@@ -71,9 +72,11 @@ class ProductsController extends Controller
      * @param  \App\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Product $product)
+    public function update(Product $product)
     {
-        //
+        $product->update(request(['title', 'description', 'price']));
+
+        return redirect('/products');
     }
 
     /**
@@ -84,6 +87,8 @@ class ProductsController extends Controller
      */
     public function destroy(Product $product)
     {
-        //
+        $product->delete();
+
+        return redirect('/products');
     }
 }

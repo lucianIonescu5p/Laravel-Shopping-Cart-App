@@ -14,7 +14,7 @@
 Route::get('/', 'PagesController@index');
 
 Route::get('/cart', 'PagesController@cart');
-Route::post('/cart', 'PagesController@store');
+Route::post('/cart', 'PagesController@mail');
 
 Route::get('/login', 'PagesController@login');
 Route::get('/logout', 'PagesController@logout');

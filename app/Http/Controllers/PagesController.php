@@ -54,7 +54,10 @@ class PagesController extends Controller
         ]);
     }
 
-    public function store()
+    /**
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function mail()
     {
         // validate user input for checkout form
         $data = request()->validate([
@@ -82,6 +85,9 @@ class PagesController extends Controller
         return view('login');
     }
 
+    /**
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function auth()
     {
         $errors = [];
@@ -103,6 +109,9 @@ class PagesController extends Controller
         }
     }
 
+    /**
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function logout()
     {
         session()->pull('auth');

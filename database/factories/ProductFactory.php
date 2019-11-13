@@ -10,6 +10,6 @@ $factory->define(Product::class, function (Faker $faker) {
         'title' => $faker->name,
         'description' => $faker->paragraph,
         'price' => $faker->randomFloat(2, 200),
-        'image' => 'pending'
+        'image' => null
     ];
 });
