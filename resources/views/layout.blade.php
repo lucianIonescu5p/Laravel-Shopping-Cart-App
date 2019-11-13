@@ -11,7 +11,7 @@
         <div>
             <span><a href="{{ '/' }}">{{ __('Home') }}</a></span>
             <span><a href="{{ '/cart' }}">{{ __('Cart') }}</a></span>
-            <span><a href="{{ '/login' }}">{{ __('Login') }}</a></span>
+            <span><a href="{{ session('auth') === true ? '/logout' : '/login' }}">{{ session('auth') === true ? __('Log Out') : __('Log In') }}</a></span>
             <span><a href="{{ '/products' }}">{{ __('Products') }}</a></span>
             <span><a href="{{ '/orders' }}">{{ __('Orders') }}</a></span>
         </div>

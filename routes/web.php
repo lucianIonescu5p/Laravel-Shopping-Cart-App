@@ -12,9 +12,14 @@
 */
 
 Route::get('/', 'PagesController@index');
+
 Route::get('/cart', 'PagesController@cart');
+Route::post('/cart', 'PagesController@store');
+
 Route::get('/login', 'PagesController@login');
-Route::get('/product', 'PagesController@product');
+Route::get('/logout', 'PagesController@logout');
+Route::post('/login', 'PagesController@auth');
+
 Route::get('/orders', 'PagesController@orders');
 
 Route::resource('products', 'ProductsController');

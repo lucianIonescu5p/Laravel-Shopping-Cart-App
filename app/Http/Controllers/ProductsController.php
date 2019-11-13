@@ -14,7 +14,11 @@ class ProductsController extends Controller
      */
     public function index()
     {
-        return view('products.index');
+        if (session('auth') === true) {
+            return view('products.index');
+        } else {
+            return redirect('/login?unauthorized');
+        }
     }
 
     /**
