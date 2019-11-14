@@ -90,22 +90,22 @@ class PagesController extends Controller
      */
     public function auth()
     {
-        $errors = [];
+        $errorMessage = [];
 
         if (request()->input('name') !== config('admin.admin_name')) {
-           $errors['name'][] = __('Wrong username');
+           $errorMessage['name'][] = __('Wrong username');
         }
 
         if (request()->input('password') !== config('admin.admin_pass')) {
-            $errors['name'][] = __('Wrong password');
+            $errorMessage['password'][] = __('Wrong password');
         }
 
-        if (!$errors) {
+        if (!$errorMessage) {
             session(['auth' => true]);
 
             return redirect('products');
         } else {
-            return redirect('login');
+            return view('login', compact('errorMessage'));
         }
     }
 

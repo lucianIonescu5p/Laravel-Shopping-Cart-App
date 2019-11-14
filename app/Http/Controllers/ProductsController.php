@@ -36,9 +36,9 @@ class ProductsController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store()
+    public function store(Product $product)
     {
-        Product::create(request(['title', 'description', 'price']));
+        $product->create(request(['title', 'description', 'price']));
 
         return redirect('/products');
     }
