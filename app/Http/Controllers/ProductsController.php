@@ -38,7 +38,9 @@ class ProductsController extends Controller
      */
     public function store(Product $product)
     {
-        $product->create(request(['title', 'description', 'price']));
+        $product->create($this->validateRequest());
+
+        $this->storeImage($product);
 
         return redirect('/products');
     }
@@ -62,7 +64,7 @@ class ProductsController extends Controller
      */
     public function edit(Product $product)
     {
-        return view('products.edit' ,compact('product'));
+        return view('products.edit', compact('product'));
     }
 
     /**
@@ -74,7 +76,9 @@ class ProductsController extends Controller
      */
     public function update(Product $product)
     {
-        $product->update(request(['title', 'description', 'price']));
+        $product->update($this->validateRequest());
+
+        $this->storeImage($product);
 
         return redirect('/products');
     }
@@ -87,8 +91,39 @@ class ProductsController extends Controller
      */
     public function destroy(Product $product)
     {
+        if ($product->image) {
+            unlink('storage/' . $product->image);
+        }
+
         $product->delete();
 
         return redirect('/products');
+    }
+
+    /**
+     * Validate data
+     *
+     * @return mixed
+     */
+    public function validateRequest()
+    {
+        return request()->validate([
+            'title' => 'required|min:5',
+            'description' => 'required|min:5',
+            'price' => 'required|numeric',
+            'image' => 'sometimes|file|image|max:5000'
+        ]);
+    }
+
+    /**
+     * @param $product
+     */
+    public function storeImage(Product $product)
+    {
+        if (request()->has('image')) {
+            $product->update([
+               'image' => request()->image->store('images', 'public')
+            ]);
+        }
     }
 }

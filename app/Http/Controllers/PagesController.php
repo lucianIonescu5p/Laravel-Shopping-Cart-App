@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Mail\CheckoutMail;
 use App\Product;
+use App\Order;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Config;
@@ -47,6 +49,10 @@ class PagesController extends Controller
         $products = Product::query()->whereIn('id', $cart)->get();
         $price = 0;
 
+        foreach ($products as $product) {
+            $price += $product->price;
+        }
+
         return view('cart', [
             'products' => $products,
             'price' => $price,
@@ -69,6 +75,20 @@ class PagesController extends Controller
         $cart = request()->session()->pull('cart');
         $products = Product::query()->whereIn('id', $cart)->get();
         $price = 0;
+
+        foreach ($products as $product) {
+            $price += $product->price;
+        }
+
+        $order = new Order();
+
+        $order->name = request()->input('name');
+        $order->email = request()->input('email');
+        $order->price = $price;
+
+        $order->save();
+
+        $order->products()->attach($cart);
 
         Mail::to('test@test.com')->send(new CheckoutMail($data, $products, $price));
 

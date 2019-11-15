@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Product extends Model
+class Order extends Model
 {
     /**
      * The attributes that are mass assignable.
@@ -12,11 +12,11 @@ class Product extends Model
      * @var array
      */
     public $fillable = [
-        'title', 'description', 'price', 'image'
+        'Customer_name', 'Customer_detail', 'price'
     ];
 
-    public function orders()
+    public function products()
     {
-        return $this->belongsToMany(Order::class)->withTimestamps();
+        return $this->belongsToMany(Product::class)->withTimestamps();
     }
 }

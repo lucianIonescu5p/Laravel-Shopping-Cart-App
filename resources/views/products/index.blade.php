@@ -29,7 +29,7 @@
                     <td>{{ $product->id }}</td>
                     <td>
                         @if ($product->image)
-                            <img src="{{ URL::to('/') }}/images/{{ $product->image }}" width="70px" height="70px">
+                            <img src="{{ asset('storage/' . $product->image) }}" width="70px" height="70px">
                         @else
                             {{ __('No image here') }}
                         @endif
@@ -43,7 +43,7 @@
                             @method('DELETE')
                             @csrf
 
-                            <input type="submit" name="delete" value="Delete">
+                            <input type="submit" name="delete" value="{{ __('Delete') }}">
                         </form>
                     </td>
                 </tr>
