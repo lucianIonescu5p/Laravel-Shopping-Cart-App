@@ -16,8 +16,11 @@
                     {{ session('auth') ? __('Log Out') : __('Log In') }}
                 </a>
             </span>
-            <span><a href="{{ '/products' }}">{{ __('Products') }}</a></span>
-            <span><a href="{{ '/orders' }}">{{ __('Orders') }}</a></span>
+
+            @if (session()->has('auth') && session('auth'))
+                <span><a href="{{ '/products' }}">{{ __('Products') }}</a></span>
+                <span><a href="{{ '/orders' }}">{{ __('Orders') }}</a></span>
+            @endif
         </div>
 
         @yield('content')

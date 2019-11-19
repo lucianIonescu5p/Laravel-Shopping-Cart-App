@@ -16,12 +16,10 @@
 
         <div>
             <label for="name">{{ __('Username') }}</label>
-            <input type="text" name="name">
+            <input type="text" name="name" value = "{{ old('name') }}">
 
-            @if (isset($errorMessage['name']))
-                @foreach ($errorMessage['name'] as $error)
-                    <p>{!!   $error !!}</p>
-                @endforeach
+            @if ($errors->has('name'))
+                <p>{{ $errors->first('name') }}</p>
             @endif
         </div>
 
@@ -29,10 +27,8 @@
             <label for="password">{{ __('Password') }}</label>
             <input type="password" name="password">
 
-            @if (isset($errorMessage['password']))
-                @foreach ($errorMessage['password'] as $error)
-                    <p>{!!   $error !!}</p>
-                @endforeach
+            @if ($errors->has('password'))
+                <p>{{ $errors->first('password') }}</p>
             @endif
         </div>
 

@@ -27,11 +27,13 @@
                 @foreach ($products as $product)
                     <tr>
                         <td align="middle">
+
                             @if ($product->image)
-                                <img src="{{ asset('storage/' . $product->image) }}" width="70px" height="70px">
+                                <img alt="{{ __('Product image') }}" src="{{ asset('storage/' . $product->image) }}" width="70px" height="70px">
                             @else
                                 {{ __('No image here') }}
                             @endif
+
                         </td>
                         <td align="middle">{{ $product->title }}</td>
                         <td align="middle">{{ $product->description }}</td>
@@ -80,7 +82,7 @@
                 </div>
 
                 <div>
-                    <input type="submit" name="submit", value="{{ __('Submit') }}">
+                    <input type="submit" name="submit" value="{{ __('Submit') }}">
                 </div>
             </form>
         </div>

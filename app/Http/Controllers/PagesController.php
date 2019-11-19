@@ -5,9 +5,12 @@ namespace App\Http\Controllers;
 use App\Mail\CheckoutMail;
 use App\Product;
 use App\Order;
+use App\Rules\AdminName;
+use App\Rules\AdminPassword;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+
 use Config;
 
 class PagesController extends Controller
@@ -61,6 +64,8 @@ class PagesController extends Controller
     }
 
     /**
+     * Mail the admin with the order details
+     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function mail()
@@ -80,6 +85,7 @@ class PagesController extends Controller
             $price += $product->price;
         }
 
+        // log an order
         $order = new Order();
 
         $order->name = request()->input('name');
@@ -108,25 +114,16 @@ class PagesController extends Controller
     /**
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function auth()
+    public function auth(Request $request)
     {
-        $errorMessage = [];
+        $request->validate([
+            'name' => ['required', new AdminName],
+            'password' => ['required', new AdminPassword]
+        ]);
 
-        if (request()->input('name') !== config('admin.admin_name')) {
-           $errorMessage['name'][] = __('Wrong username');
-        }
+        session(['auth' => true]);
 
-        if (request()->input('password') !== config('admin.admin_pass')) {
-            $errorMessage['password'][] = __('Wrong password');
-        }
-
-        if (!$errorMessage) {
-            session(['auth' => true]);
-
-            return redirect('products');
-        } else {
-            return view('login', compact('errorMessage'));
-        }
+        return redirect('products');
     }
 
     /**
@@ -141,22 +138,12 @@ class PagesController extends Controller
     }
 
     /**
-     * View product page
-     *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     */
-    public function product()
-    {
-        return view('product');
-    }
-
-    /**
      * View orders page
      *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function orders()
     {
-        return view('orders');
+        return view('orders', ['orders' => Order::all()]);
     }
 }

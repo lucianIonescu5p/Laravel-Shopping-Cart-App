@@ -13,11 +13,7 @@ class ProductsController extends Controller
      */
     public function index()
     {
-        if (session('auth') === true) {
-            return view('products.index', ['products' => Product::all()]);
-        } else {
-            return redirect('/login?unauthorized');
-        }
+        return view('products.index', ['products' => Product::all()]);
     }
 
     /**
@@ -53,7 +49,7 @@ class ProductsController extends Controller
      */
     public function show(Product $product)
     {
-        //
+        return redirect('/products');
     }
 
     /**
@@ -116,6 +112,8 @@ class ProductsController extends Controller
     }
 
     /**
+     * Store image
+     *
      * @param $product
      */
     public function storeImage(Product $product)

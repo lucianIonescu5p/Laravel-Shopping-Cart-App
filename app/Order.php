@@ -15,6 +15,7 @@ class Order extends Model
         'Customer_name', 'Customer_detail', 'price'
     ];
 
+    // add many to many relationship
     public function products()
     {
         return $this->belongsToMany(Product::class)->withTimestamps();

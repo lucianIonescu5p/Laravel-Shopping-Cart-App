@@ -21,7 +21,7 @@
                 <tr>
                     <td align="middle">
                         @if ($product->image)
-                            <img src="{{ asset('storage/' . $product->image) }}" width="70px" height="70px">
+                            <img alt="{{ __('Product image') }}" src="{{ asset('storage/' . $product->image) }}" width="70px" height="70px">
                         @else
                             {{ __('No image here') }}
                         @endif
@@ -31,10 +31,9 @@
                     <td align="middle">{{ $product->price }}</td>
                 </tr>
             @endforeach
+
             <tr>
-                <td colspan="3" align="middle">
-                    {{ __('Price') }}
-                </td>
+                <td colspan="3" align="middle">{{ __('Price') }}</td>
                 <td colspan="1" align="middle"><strong>{{ $price }}</strong></td>
             </tr>
         </table>

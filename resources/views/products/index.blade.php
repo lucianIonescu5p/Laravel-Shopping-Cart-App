@@ -29,7 +29,7 @@
                     <td>{{ $product->id }}</td>
                     <td>
                         @if ($product->image)
-                            <img src="{{ asset('storage/' . $product->image) }}" width="70px" height="70px">
+                            <img alt="{{ __('Product image') }}" src="{{ asset('storage/' . $product->image) }}" width="70px" height="70px">
                         @else
                             {{ __('No image here') }}
                         @endif
