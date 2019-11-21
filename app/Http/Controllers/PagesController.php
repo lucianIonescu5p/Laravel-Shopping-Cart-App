@@ -51,7 +51,9 @@ class PagesController extends Controller
 
         session()->put('cart', $cart);
 
+        // query database for product id's stored in $cart
         $products = Product::query()->whereIn('id', $cart)->get();
+        // use aggregate function to sum the product price
         $price = Product::query()->whereIn('id', $cart)->sum('price');
 
         return view('cart', [

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Order;
 
 class OrdersController extends Controller
@@ -14,6 +13,20 @@ class OrdersController extends Controller
      */
     public function orders()
     {
-        return view('orders');
+        $orders = Order::all();
+        return view('orders', compact('orders'));
+    }
+
+    /**
+     * View the individual order
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function order()
+    {
+        $request = request('id');
+        $order = Order::find($request);
+
+       return view('order', compact('request', 'order'));
     }
 }
