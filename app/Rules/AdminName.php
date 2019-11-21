@@ -42,6 +42,6 @@ class AdminName implements Rule
      */
     public function message()
     {
-        return 'User invalid';
+        return __('User invalid');
     }
 }

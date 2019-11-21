@@ -12,7 +12,7 @@ class Order extends Model
      * @var array
      */
     public $fillable = [
-        'Customer_name', 'Customer_detail', 'price'
+        'name', 'email'
     ];
 
     // add many to many relationship

@@ -18,7 +18,8 @@ class PagesController extends Controller
     /**
      * View index page
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|\Illuminate\View\View
      */
     public function index(Request $request)
     {
@@ -36,6 +37,7 @@ class PagesController extends Controller
     /**
      * View cart page
      *
+     * @param Request $request
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function cart(Request $request)
@@ -50,16 +52,12 @@ class PagesController extends Controller
         session()->put('cart', $cart);
 
         $products = Product::query()->whereIn('id', $cart)->get();
-        $price = 0;
-
-        foreach ($products as $product) {
-            $price += $product->price;
-        }
+        $price = Product::query()->whereIn('id', $cart)->sum('price');
 
         return view('cart', [
             'products' => $products,
-            'price' => $price,
-            'cart' => $cart
+            'cart' => $cart,
+            'price' => $price
         ]);
     }
 
@@ -79,18 +77,13 @@ class PagesController extends Controller
 
         $cart = request()->session()->pull('cart');
         $products = Product::query()->whereIn('id', $cart)->get();
-        $price = 0;
-
-        foreach ($products as $product) {
-            $price += $product->price;
-        }
+        $price = Product::query()->whereIn('id', $cart)->sum('price');
 
         // log an order
         $order = new Order();
 
         $order->name = request()->input('name');
         $order->email = request()->input('email');
-        $order->price = $price;
 
         $order->save();
 
@@ -112,6 +105,9 @@ class PagesController extends Controller
     }
 
     /**
+     * Log in
+     *
+     * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function auth(Request $request)
@@ -135,15 +131,5 @@ class PagesController extends Controller
         session()->put(['auth' => false]);
 
         return redirect('/');
-    }
-
-    /**
-     * View orders page
-     *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     */
-    public function orders()
-    {
-        return view('orders', ['orders' => Order::all()]);
     }
 }

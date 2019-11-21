@@ -40,6 +40,6 @@ class AdminPassword implements Rule
      */
     public function message()
     {
-        return 'Invalid Password';
+        return __('Invalid Password');
     }
 }

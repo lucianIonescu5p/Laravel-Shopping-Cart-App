@@ -20,6 +20,7 @@ Route::get('/login', 'PagesController@login');
 Route::get('/logout', 'PagesController@logout');
 Route::post('/login', 'PagesController@auth');
 
-Route::get('/orders', 'PagesController@orders')->middleware('admin.auth');
+Route::get('/orders', 'OrdersController@orders')->middleware('admin.auth');
+
 
 Route::resource('products', 'ProductsController')->middleware('admin.auth');
