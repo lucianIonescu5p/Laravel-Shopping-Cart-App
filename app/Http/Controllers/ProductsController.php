@@ -81,12 +81,17 @@ class ProductsController extends Controller
      */
     public function update(Product $product)
     {
-        $product->update($this->validateRequest());
+        $this->validateRequest();
+        $fileNameToStore = $this->imageToUpload();
+
+        $product->update([
+            'title' => request()->input('title'),
+            'description' => request()->input('description'),
+            'price' => request()->input('price')
+        ]);
 
         if (request()->hasFile('image')) {
-            $fileNameToStore = $this->imageToUpload();
-
-            if ($product->image && $product->image !== $fileNameToStore){
+            if ($product->image && $product->image !== $fileNameToStore) {
                 unlink('storage/images/' . $product->image);
             }
 
