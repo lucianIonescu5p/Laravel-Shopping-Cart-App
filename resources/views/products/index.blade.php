@@ -50,7 +50,7 @@
 
             @empty
                 <tr>
-                    <td colspan="5">{{ __('All products in cart') }}</td>
+                    <td colspan="7">{{ __('No products available') }}</td>
                 </tr>
             @endforelse
         </table>
