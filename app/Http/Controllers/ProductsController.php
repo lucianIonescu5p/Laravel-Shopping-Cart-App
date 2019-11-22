@@ -30,7 +30,7 @@ class ProductsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param Product $product
+     * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function store(Request $request)
@@ -72,17 +72,15 @@ class ProductsController extends Controller
     {
         return redirect('/products');
     }
+
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Product  $product
-     * @return \Illuminate\Http\Response
+     * @param Product $product
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function update(Product $product)
     {
-        $product->update($this->validateRequest());
-
         if (request()->hasFile('image')) {
             $fileNameToStore = $this->imageToUpload();
 
@@ -90,6 +88,7 @@ class ProductsController extends Controller
                 unlink('storage/images/' . $product->image);
             }
 
+            $product->update($this->validateRequest());
             $product->update(['image' => $fileNameToStore]);
         }
 
@@ -125,7 +124,7 @@ class ProductsController extends Controller
             'title' => 'required|min:5',
             'description' => 'required|min:5',
             'price' => 'required|numeric',
-//            'image' => 'image|mimes:jpg,jpeg,png,bmp,tiff|nullable|max:1999'
+            'image' => 'image|mimes:jpg,jpeg,png,bmp,tiff|max:1999'
         ]);
     }
 
