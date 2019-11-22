@@ -19,7 +19,7 @@
                         @if ($product->image)
                             <img
                                 alt="{{ __('Product image') }}"
-                                src="{{ asset('storage/' . $product->image) }}"
+                                src="{{ asset('storage/images/' . $product->image) }}"
                                 width="70px"
                                 height="70px">
                         @else

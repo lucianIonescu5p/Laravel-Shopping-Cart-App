@@ -25,7 +25,7 @@ class OrdersController extends Controller
     public function order()
     {
         $request = request('id');
-        $order = Order::find($request);
+        $order = Order::findOrFail($request);
 
        return view('order', compact('request', 'order'));
     }

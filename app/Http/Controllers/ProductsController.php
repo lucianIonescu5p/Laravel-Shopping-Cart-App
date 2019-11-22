@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Product;
+use Illuminate\Http\Request;
 
 class ProductsController extends Controller
 {
@@ -32,23 +33,21 @@ class ProductsController extends Controller
      * @param Product $product
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function store(Product $product)
+    public function store(Request $request)
     {
-        $product->create($this->validateRequest());
+        $this->validateRequest();
 
-        $this->storeImage($product);
+        $fileNameToStore = $this->imageToUpload();
 
-        return redirect('/products');
-    }
+        $product = new Product;
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Product  $product
-     * @return \Illuminate\Http\Response
-     */
-    public function show()
-    {
+        $product->title = $request->input('title');
+        $product->description = $request->input('description');
+        $product->price = $request->input('price');
+        $product->image = $fileNameToStore;
+
+        $product->save();
+
         return redirect('/products');
     }
 
@@ -64,6 +63,16 @@ class ProductsController extends Controller
     }
 
     /**
+     * Display the specified resource.
+     *
+     * @param  \App\Product  $product
+     * @return \Illuminate\Http\Response
+     */
+    public function show()
+    {
+        return redirect('/products');
+    }
+    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -74,7 +83,15 @@ class ProductsController extends Controller
     {
         $product->update($this->validateRequest());
 
-        $this->storeImage($product);
+        if (request()->hasFile('image')) {
+            $fileNameToStore = $this->imageToUpload();
+
+            if ($product->image && $product->image !== $fileNameToStore){
+                unlink('storage/images/' . $product->image);
+            }
+
+            $product->update(['image' => $fileNameToStore]);
+        }
 
         return redirect('/products');
     }
@@ -89,7 +106,7 @@ class ProductsController extends Controller
     public function destroy(Product $product)
     {
         if ($product->image) {
-            unlink('storage/' . $product->image);
+            unlink('storage/images/' . $product->image);
         }
 
         $product->delete();
@@ -108,21 +125,27 @@ class ProductsController extends Controller
             'title' => 'required|min:5',
             'description' => 'required|min:5',
             'price' => 'required|numeric',
-            'image' => 'sometimes|file|image|max:5000'
+//            'image' => 'image|mimes:jpg,jpeg,png,bmp,tiff|nullable|max:1999'
         ]);
     }
 
     /**
-     * Store image
-     *
-     * @param $product
+     * @param Request $request
+     * @return string|null
      */
-    public function storeImage(Product $product)
+    public function imageToUpload()
     {
-        if (request()->has('image')) {
-            $product->update([
-               'image' => request()->image->store('images', 'public')
-            ]);
+        if (request()->hasFile('image')) {
+            $filenameWithExt = request()->file('image')->getClientOriginalName();
+            $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+            $extension = request()->file('image')->getClientOriginalExtension();
+            $fileNameToStore = $filename . '_' . time() . '.' . $extension;
+
+            request()->file('image')->storeAs('public/images', $fileNameToStore);
+        } else {
+            $fileNameToStore = null;
         }
+
+        return $fileNameToStore;
     }
 }
