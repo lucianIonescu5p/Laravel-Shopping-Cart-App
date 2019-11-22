@@ -81,6 +81,8 @@ class ProductsController extends Controller
      */
     public function update(Product $product)
     {
+        $product->update($this->validateRequest());
+
         if (request()->hasFile('image')) {
             $fileNameToStore = $this->imageToUpload();
 
@@ -88,7 +90,6 @@ class ProductsController extends Controller
                 unlink('storage/images/' . $product->image);
             }
 
-            $product->update($this->validateRequest());
             $product->update(['image' => $fileNameToStore]);
         }
 
@@ -129,6 +130,8 @@ class ProductsController extends Controller
     }
 
     /**
+     * Store the image
+     *
      * @param Request $request
      * @return string|null
      */
