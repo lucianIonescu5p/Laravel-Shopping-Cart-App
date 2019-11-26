@@ -11,14 +11,14 @@
 |
 */
 
-Route::get('/', 'PagesController@index');
+Route::get('/', 'ShopController@index');
 
-Route::get('/cart', 'PagesController@cart');
-Route::post('/cart', 'PagesController@mail');
+Route::get('/cart', 'ShopController@cart');
+Route::post('/cart', 'ShopController@mail');
 
-Route::get('/login', 'PagesController@login');
-Route::get('/logout', 'PagesController@logout');
-Route::post('/login', 'PagesController@auth');
+Route::get('/login', 'LoginController@login');
+Route::get('/logout', 'LoginController@logout');
+Route::post('/login', 'LoginController@auth');
 
 Route::get('/orders', 'OrdersController@orders')->middleware('admin.auth');
 Route::get('/order', 'OrdersController@order')->middleware('admin.auth');

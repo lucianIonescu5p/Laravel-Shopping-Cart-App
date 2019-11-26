@@ -33,19 +33,16 @@ class ProductsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function store(Request $request)
+    public function store(Product $product, Request $request)
     {
         $this->validateRequest();
 
         $fileNameToStore = $this->imageToUpload();
 
-        $product = new Product;
-
         $product->title = $request->input('title');
         $product->description = $request->input('description');
         $product->price = $request->input('price');
         $product->image = $fileNameToStore;
-
         $product->save();
 
         return redirect('/products');
@@ -65,8 +62,7 @@ class ProductsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Product  $product
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function show()
     {
@@ -79,24 +75,24 @@ class ProductsController extends Controller
      * @param Product $product
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function update(Product $product)
+    public function update(Product $product, Request $request)
     {
         $this->validateRequest();
         $fileNameToStore = $this->imageToUpload();
 
-        $product->update([
-            'title' => request()->input('title'),
-            'description' => request()->input('description'),
-            'price' => request()->input('price')
-        ]);
+        $product->title = $request->input('title');
+        $product->description = $request->input('description');
+        $product->price = $request->input('price');
 
         if (request()->hasFile('image')) {
             if ($product->image && $product->image !== $fileNameToStore) {
                 unlink('storage/images/' . $product->image);
             }
 
-            $product->update(['image' => $fileNameToStore]);
+            $product->image = $fileNameToStore;
         }
+
+        $product->save();
 
         return redirect('/products');
     }

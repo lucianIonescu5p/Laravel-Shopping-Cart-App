@@ -1,4 +1,4 @@
-@extends('layout')
+@extends('Layouts.layout')
 
 @section('title')
     {{ __('Order') }}

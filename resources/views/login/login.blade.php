@@ -1,4 +1,4 @@
-@extends('layout')
+@extends('Layouts.layout')
 
 @section('title')
     {{ __('Login') }}
@@ -16,7 +16,7 @@
 
         <div>
             <label for="name">{{ __('Username') }}</label>
-            <input type="text" name="name" value = "{{ old('name') }}">
+            <input type="text" name="name" value="{{ old('name') }}">
 
             @if ($errors->has('name'))
                 <p>{{ $errors->first('name') }}</p>

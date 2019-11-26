@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
+    public $timestamps = false;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -18,6 +20,6 @@ class Order extends Model
     // add many to many relationship
     public function products()
     {
-        return $this->belongsToMany(Product::class)->withTimestamps();
+        return $this->belongsToMany(Product::class);
     }
 }

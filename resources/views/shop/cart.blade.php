@@ -1,4 +1,4 @@
-@extends('layout')
+@extends('Layouts.layout')
 
 @section('title')
     {{ __('Cart') }}
@@ -29,7 +29,10 @@
                         <td align="middle">
 
                             @if ($product->image)
-                                <img alt="{{ __('Product image') }}" src="{{ asset('storage/images/' . $product->image) }}" width="70px" height="70px">
+                                <img alt="{{ __('Product image') }}"
+                                     src="{{ asset('storage/images/' . $product->image) }}"
+                                     width="70px"
+                                     height="70px">
                             @else
                                 {{ __('No image here') }}
                             @endif
@@ -56,7 +59,7 @@
 
                 <div>
                     <label for="name">{{ __('Name') }}</label>
-                    <input type="text" name="name" value="{{ old('name') }}" >
+                    <input type="text" name="name" value="{{ old('name') }}">
 
                     @if ($errors->has('name'))
                         <p>{{ $errors->first('name') }}</p>

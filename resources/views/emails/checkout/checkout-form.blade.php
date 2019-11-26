@@ -21,7 +21,8 @@
                 <tr>
                     <td align="middle">
                         @if ($product->image)
-                            <img alt="{{ __('Product image') }}" src="{{ asset('storage/images/' . $product->image) }}" width="70px" height="70px">
+                            <img alt="{{ __('Product image') }}" src="{{ asset('storage/images/' . $product->image) }}"
+                                 width="70px" height="70px">
                         @else
                             {{ __('No image here') }}
                         @endif

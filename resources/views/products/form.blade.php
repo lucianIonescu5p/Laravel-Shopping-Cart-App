@@ -9,7 +9,8 @@
 
 <div>
     <label for="description">{{ __('Description') }}</label>
-    <textarea name="description" cols="30" rows="10">{{ $product ?? '' ? $product->description : old('description') }}</textarea>
+    <textarea name="description" cols="30"
+              rows="10">{{ $product ?? '' ? $product->description : old('description') }}</textarea>
 
     @if ($errors->has('description'))
         <p>{{ $errors->first('description') }}</p>

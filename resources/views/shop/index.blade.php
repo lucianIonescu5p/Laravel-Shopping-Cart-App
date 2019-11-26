@@ -1,4 +1,4 @@
-@extends('layout')
+@extends('Layouts.layout')
 
 @section('content')
     <h1>{{ __('Index') }}</h1>
@@ -32,7 +32,7 @@
                     <td><a href="?id={{ $product->id }}">{{ __('Add') }}</a></td>
                 </tr>
 
-                @empty
+            @empty
                 <tr>
                     <td colspan="5">{{ __('All products in cart') }}</td>
                 </tr>

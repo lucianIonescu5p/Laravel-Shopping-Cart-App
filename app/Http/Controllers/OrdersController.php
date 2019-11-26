@@ -14,7 +14,7 @@ class OrdersController extends Controller
     public function orders()
     {
         $orders = Order::all();
-        return view('orders', compact('orders'));
+        return view('orders.orders', compact('orders'));
     }
 
     /**
@@ -27,6 +27,6 @@ class OrdersController extends Controller
         $request = request('id');
         $order = Order::findOrFail($request);
 
-       return view('order', compact('request', 'order'));
+       return view('orders.order', compact('request', 'order'));
     }
 }
