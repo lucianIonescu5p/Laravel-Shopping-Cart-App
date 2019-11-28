@@ -12,6 +12,9 @@
 */
 
 Route::get('/', 'ShopController@index');
+Route::get('/spa', function () {
+    return view('spa');
+});
 
 Route::get('/cart', 'ShopController@cart');
 Route::post('/cart', 'ShopController@mail');

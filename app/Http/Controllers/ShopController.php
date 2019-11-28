@@ -26,10 +26,20 @@ class ShopController extends Controller
         if ($request->id && !in_array($request->id, $cart)) {
             $request->session()->push('cart', $request->id);
 
+            if ($request->ajax()) {
+                return ['success' => true];
+            }
+
             return redirect('/');
         }
 
-        return view('shop.index', ['products' => Product::query()->whereNotIn('id', $cart)->get()]);
+        $products = Product::query()->whereNotIn('id', $cart)->get();
+
+        if ($request->ajax()) {
+            return $products;
+        }
+
+        return view('shop.index', compact('products'));
     }
 
     /**
@@ -52,11 +62,17 @@ class ShopController extends Controller
         // query database for product id's stored in $cart
         $products = Product::query()->whereIn('id', $cart)->get();
 
-        return view('shop.cart', [
+        $result = [
             'products' => $products,
             'price' => $products->sum('price'),
-            'cart' => $cart
-        ]);
+            'cart' => $cart ? true : false
+        ];
+
+        if ($request->ajax()) {
+            return $result;
+        }
+
+        return view('shop.cart', $result);
     }
 
     /**
