@@ -103,6 +103,12 @@ class ShopController extends Controller
 
         Mail::to('test@test.com')->send(new CheckoutMail($data, $products, $price));
 
+        if (request()->ajax()) {
+            return response()->json([
+               'success' => 'Mail sent'
+            ]);
+        }
+
         return redirect('cart?success');
     }
 }
