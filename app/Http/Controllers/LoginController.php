@@ -28,11 +28,18 @@ class LoginController extends Controller
     public function auth(Request $request)
     {
         $request->validate([
-            'name' => ['required', new AdminName],
+            'username' => ['required', new AdminName],
             'password' => ['required', new AdminPassword]
         ]);
 
         session(['auth' => true]);
+
+        if (request()->ajax()) {
+            return response()->json([
+                'success' => 'Logged in',
+                'auth' => true
+            ]);
+        }
 
         return redirect('products');
     }
@@ -45,6 +52,12 @@ class LoginController extends Controller
         session()->pull('auth');
         session()->put(['auth' => false]);
 
+        if (request()->ajax()) {
+            return response()->json([
+                'success' => 'Logged out',
+                'auth' => false
+            ]);
+        }
         return redirect('/');
     }
 }

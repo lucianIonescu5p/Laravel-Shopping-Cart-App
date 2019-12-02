@@ -14,7 +14,13 @@ class ProductsController extends Controller
      */
     public function index()
     {
-        return view('products.index', ['products' => Product::all()]);
+        $products = Product::all();
+
+        if (request()->ajax()) {
+            return $products;
+        }
+
+        return view('products.index', compact('products'));
     }
 
     /**
@@ -24,6 +30,11 @@ class ProductsController extends Controller
      */
     public function create()
     {
+        if (request()->ajax()) {
+            return response()->json([
+               'product' => true
+            ]);
+        }
         return view('products.create');
     }
 
@@ -44,6 +55,12 @@ class ProductsController extends Controller
         $product->price = $request->input('price');
         $product->image = $fileNameToStore;
         $product->save();
+
+        if (request()->ajax()) {
+            return response()->json([
+                'success' => 'Product created'
+            ]);
+        }
 
         return redirect('/products');
     }
