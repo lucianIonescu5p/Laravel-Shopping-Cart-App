@@ -25,7 +25,7 @@
                  * }]
                  */
                 function renderList(products, price) {
-                    var parts = window.location.hash;
+                    let parts = window.location.hash;
 
                     html = [
                         '<table border="1" cellpadding="3">',
@@ -105,7 +105,7 @@
                     // First hide all the pages
                     $('.page').hide();
 
-                    var parts = window.location.hash.split('/');
+                    let parts = window.location.hash.split('/');
 
                     switch (parts[0]) {
                         case '#cart':
@@ -119,7 +119,7 @@
                                         // Hide the checkout form
                                         $('.cart .checkout-form').hide();
                                         // Don't render the products if there is nothing in the cart
-                                        $('.cart .list').html('<p>{{ __('Cart is empty') }}</p>')
+                                        $('.cart .list').html('<p class="mt-4">{{ __('Cart is empty') }}</p>')
                                     } else {
                                         // Render the checkout form
                                         $('.cart .checkout-form').css('display', 'block');
@@ -136,7 +136,7 @@
                             break;
 
                         case '#logout':
-                            //Log off and set auth to false
+                            //Log out
                             $.ajax('/logout', {
                                 success: function () {
                                     window.location = '/spa';
@@ -149,17 +149,30 @@
                             $('.products').show();
 
                             if (parts.length > 1) {
+                                $('.page').hide();
+
                                 switch (parts[1]) {
                                     case 'create':
+                                        $('.product-form').each(function () {
+                                            this.reset();
+                                        })
+
                                         $.ajax('/products/create', {
                                             dataType: 'json',
                                             success: function (response) {
                                                 redirectUnauthorised(response);
 
-                                                $('.products').hide();
-                                                $('.products-create').show();
+                                                $('.products-manipulate').show();
+                                                $('.product-update').hide();
+                                                $('.product-create').show();
                                             }
                                         })
+                                        break;
+
+                                    case 'edit':
+                                        $('.products-manipulate').show();
+                                        $('.product-create').hide();
+                                        $('.product-update').show();
                                         break;
                                 }
                             } else {
@@ -170,7 +183,10 @@
                                         redirectUnauthorised(response);
 
                                         $('.products .list').html(renderList(response));
-                                    }
+                                    },
+                                    error: function (error) {
+                                      cosole.log('{{ __('Something bad happened') }}' + '' + error);
+                                }
                                 })
                             }
                             break;
@@ -185,7 +201,7 @@
                                 success: function (response) {
                                     if (!response.length) {
                                         // Don't render the products table if all products in cart
-                                        $('.index .list').html('<p>{{ __('All products in cart') }}</p>')
+                                        $('.index .list').html('<p class="mt-4">{{ __('All products in cart') }}</p>')
                                     } else {
                                         // Render the products in the index list
                                         $('.index .list').html(renderList(response));
@@ -197,6 +213,13 @@
                 }
 
                 window.onhashchange();
+            });
+
+            // Validating CSRF Token
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
             });
 
             // add products to cart
@@ -225,20 +248,56 @@
                 });
             });
 
-            // Validating the CSRF Token
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
+            // Delete product from database functionality
+            $(document).on('click', '.delete-from-database', function () {
+                let id = $(this).data('id');
+
+                $.ajax('/products/' + id, {
+                    type: 'DELETE',
+                    data: {
+                        id
+                    },
+                    dataType: 'json',
+                    success: function () {
+                        window.onhashchange();
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+            })
+
+            // Update product
+            $(document).on('click', '.edit-product', function () {
+                $.ajax('/products/' + $(this).data('id') + '/edit', {
+                    dataType: 'json',
+                    success: function (response) {
+                        window.location.hash = '#products/edit';
+
+                        $('.product-form').each(function () {
+                            this.reset();
+                        })
+
+                        $('#title').val(response.title);
+                        $('#description').val(response.description);
+                        $('#price').val(response.price);
+                        $('#product-id').val(response.id);
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+            })
 
             // Checkout form
             $(document).on('click', '.submit', function (e) {
                 e.preventDefault();
 
-                let name = $('input[id=name]').val();
-                let email = $('input[id=email]').val();
-                let comments = $('textarea[id=comments]').val();
+                let data = new FormData();
+                data.append('name', $('input[id=name]').val());
+                data.append('email', $('input[id=email]').val());
+                data.append('comments', $('textarea[id=comments]').val());
+
 
                 $('.submit').prop('disabled', true);
                 $('.submit').html('{{ __('Please wait') . '...' }}')
@@ -246,11 +305,10 @@
                 $.ajax('/cart', {
                     type: 'POST',
                     dataType: 'json',
-                    data: {
-                        name,
-                        email,
-                        comments
-                    },
+                    data: data,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
                     success: function (result) {
                         alert(result.success);
 
@@ -267,10 +325,10 @@
                         $('.submit').prop('disabled', false);
                         $('.submit').html('{{ __('Checkout') }}');
 
-                        var errorMessage = JSON.parse(error.responseText)
+                        let errorMessage = JSON.parse(error.responseText)
 
                         if (errorMessage.errors.hasOwnProperty('name')) {
-                            var nameError = $('.name-error');
+                            let nameError = $('.name-error');
                             nameError.css('display', 'block');
                             nameError.html(errorMessage.errors['name']);
 
@@ -278,7 +336,7 @@
                         }
 
                         if (errorMessage.errors.hasOwnProperty('email')) {
-                            var emailError = $('.email-error');
+                            let emailError = $('.email-error');
                             emailError.css('display', 'block');
                             emailError.html(errorMessage.errors['email']);
 
@@ -286,7 +344,7 @@
                         }
 
                         if (errorMessage.errors.hasOwnProperty('comments')) {
-                            var commentsError = $('.comments-error');
+                            let commentsError = $('.comments-error');
                             commentsError.css('display', 'block');
                             commentsError.html(errorMessage.errors['comments']);
 
@@ -316,29 +374,28 @@
             $(document).on('click', '.login-submit', function (e) {
                 e.preventDefault();
 
-                let username = $('input[id=username]').val();
-                let password = $('input[id=password]').val();
+                let data = new FormData();
+                data.append('username', $('input[id=username]').val());
+                data.append('password', $('input[id=password]').val());
 
                 $.ajax('/login', {
                     type: 'POST',
-                    data: {
-                        username,
-                        password
-                    },
+                    data: data,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
                     success: function () {
                         $('#login-btn').attr('href', '#logout');
                         $('#login-btn').attr('id', 'logout-btn');
                         $('#logout-btn').html(`<strong>{{ __('Log Out') }}</strong>`);
 
-                        $('#admin-prompt').css('display', 'block');
-
                         window.location.hash = '#products';
                     },
                     error: function (error) {
-                        var errorMessage = JSON.parse(error.responseText)
+                        let errorMessage = JSON.parse(error.responseText)
 
                         if (errorMessage.errors.hasOwnProperty('username')) {
-                            var usernameError = $('.username-error');
+                            let usernameError = $('.username-error');
                             usernameError.css('display', 'block');
                             usernameError.html(errorMessage.errors['username']);
 
@@ -346,7 +403,7 @@
                         }
 
                         if (errorMessage.errors.hasOwnProperty('password')) {
-                            var passwordError = $('.password-error');
+                            let passwordError = $('.password-error');
                             passwordError.css('display', 'block');
                             passwordError.html(errorMessage.errors['password']);
 
@@ -366,33 +423,182 @@
                 });
             });
 
-            // Product manipulation functionality
-
-            $(document).on('click', '.product-submit', function (e) {
+            // Product create functionality
+            $(document).on('click', '.product-create', function (e) {
                 e.preventDefault();
 
-                let title = $('input[id=title]').val();
-                let description = $('input[id=description]').val();
-                let price = $('input[id=price]').val();
-                let image = $('#image')[0].files[0].name;
+                let data = new FormData();
+                data.append('title', $('input[id=title]').val());
+                data.append('description', $('input[id=description]').val());
+                data.append('price', $('input[id=price]').val());
+
+                if ($('#image').get(0).files.length !== 0) {
+                    data.append('image', $('#image')[0].files[0]);
+                }
+
+                $('.product-create').prop('disabled', true);
+                $('.product-create').html('{{ __('Please wait') . '...' }}')
 
                 $.ajax('/products', {
                     type: 'POST',
                     dataType: 'json',
-                    data: {
-                        title,
-                        description,
-                        price,
-                        image
-                    },
-                    success: function (response) {
-                        console.log(response);
+                    data: data,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function () {
+                        $('.product-create').prop('disabled', false);
+                        $('.product-create').html('{{ __('Create') }}');
+
+                        $('.product-form').each(function () {
+                            this.reset();
+                        })
+
+                        window.location.hash='#products';
                     },
                     error: function (error) {
+                        $('.product-create').prop('disabled', false);
+                        $('.product-create').html('{{ __('Create') }}');
 
+                        let errorMessage = JSON.parse(error.responseText)
+
+                        if (errorMessage.errors.hasOwnProperty('title')) {
+                            let titleError = $('.title-error');
+                            titleError.css('display', 'block');
+                            titleError.html(errorMessage.errors['title']);
+
+                            $('#title').addClass('is-invalid');
+                        }
+
+                        if (errorMessage.errors.hasOwnProperty('description')) {
+                            let descriptionError = $('.description-error');
+                            descriptionError.css('display', 'block');
+                            descriptionError.html(errorMessage.errors['description']);
+
+                            $('#description').addClass('is-invalid');
+                        }
+
+                        if (errorMessage.errors.hasOwnProperty('price')) {
+                            let priceError = $('.price-error');
+                            priceError.css('display', 'block');
+                            priceError.html(errorMessage.errors['price']);
+
+                            $('#price').addClass('is-invalid');
+                        }
+
+                        if (errorMessage.errors.hasOwnProperty('image')) {
+                            let imageError = $('.image-error');
+                            imageError.css('display', 'block');
+                            imageError.html(errorMessage.errors['image']);
+
+                            $('#image').addClass('is-invalid');
+                        }
                     }
                 })
 
+                $('input[id=title]').keypress(function () {
+                    $('.title-error').hide();
+                    $('#title').removeClass('is-invalid');
+                });
+
+                $('input[id=description]').keypress(function () {
+                    $('.description-error').hide();
+                    $('#description').removeClass('is-invalid');
+                });
+
+                $('input[id=price]').keypress(function () {
+                    $('.price-error').hide();
+                    $('#price').removeClass('is-invalid');
+                });
+            });
+
+            // Product edit functionality
+            $(document).on('click', '.product-update', function (e) {
+                e.preventDefault();
+
+                let data = new FormData();
+                data.append('title', $('input[id=title]').val());
+                data.append('description', $('input[id=description]').val());
+                data.append('price', $('input[id=price]').val());
+
+                if ($('#image').get(0).files.length !== 0) {
+                    data.append('image', $('#image')[0].files[0]);
+                }
+
+                $('.product-update').prop('disabled', true);
+                $('.product-update').html('{{ __('Please wait') . '...' }}')
+
+                $.ajax('/products/' + parseInt($('input[id=product-id]').val()), {
+                    type: 'PUT',
+                    dataType: 'json',
+                    data: data,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        $('.product-update').prop('disabled', false);
+                        $('.product-update').html('{{ __('Update') }}');
+
+                        $('.product-form').each(function () {
+                            this.reset();
+                        })
+
+                        window.location.hash='#products';
+                    },
+                    error: function (error) {
+                        $('.product-update').prop('disabled', false);
+                        $('.product-update').html('{{ __('Update') }}');
+
+                        let errorMessage = JSON.parse(error.responseText)
+
+                        if (errorMessage.errors.hasOwnProperty('title')) {
+                            let titleError = $('.title-error');
+                            titleError.css('display', 'block');
+                            titleError.html(errorMessage.errors['title']);
+
+                            $('#title').addClass('is-invalid');
+                        }
+
+                        if (errorMessage.errors.hasOwnProperty('description')) {
+                            let descriptionError = $('.description-error');
+                            descriptionError.css('display', 'block');
+                            descriptionError.html(errorMessage.errors['description']);
+
+                            $('#description').addClass('is-invalid');
+                        }
+
+                        if (errorMessage.errors.hasOwnProperty('price')) {
+                            let priceError = $('.price-error');
+                            priceError.css('display', 'block');
+                            priceError.html(errorMessage.errors['price']);
+
+                            $('#price').addClass('is-invalid');
+                        }
+
+                        if (errorMessage.errors.hasOwnProperty('image')) {
+                            let imageError = $('.image-error');
+                            imageError.css('display', 'block');
+                            imageError.html(errorMessage.errors['image']);
+
+                            $('#image').addClass('is-invalid');
+                        }
+                    }
+                })
+
+                $('input[id=title]').keypress(function () {
+                    $('.title-error').hide();
+                    $('#title').removeClass('is-invalid');
+                });
+
+                $('input[id=description]').keypress(function () {
+                    $('.description-error').hide();
+                    $('#description').removeClass('is-invalid');
+                });
+
+                $('input[id=price]').keypress(function () {
+                    $('.price-error').hide();
+                    $('#price').removeClass('is-invalid');
+                });
             });
 
         </script>
@@ -413,12 +619,6 @@
                 <a class="list-group-item-action p-1" href="#products"><strong>{{ __('Products') }}</strong></a>
                 <a class="list-group-item-action p-1" href="#orders"><strong>{{ __('Orders') }}</strong></a>
             </span>
-
-            @if (request()->session()->has('auth') && !session('auth'))
-            <span class="float-left" id="admin-prompt" style="display: none">
-                <strong>{{ __('Hi there') }}</strong>
-            </span>
-            @endif
         </nav>
 
         <!-- The index page -->
@@ -496,7 +696,7 @@
         </div>
 
         <!-- The product create/edit page -->
-        <div class="page products-create container">
+        <div class="page products-manipulate container">
             <div class="container">
                 <form class="product-form" enctype="multipart/form-data">
                     <div class="form-group">
@@ -527,7 +727,10 @@
                         <p class="image-error text-danger" style="display: none"></p>
                     </div>
 
-                    <button type="submit" class="product-submit btn btn-primary">{{ __('Submit') }}</button>
+                    <input type="hidden" id="product-id" value="">
+
+                    <button type="button" class="product-create btn btn-primary">{{ __('Create') }}</button>
+                    <button type="button" class="product-update btn btn-warning">{{ __('Update') }}</button>
                 </form>
             </div>
         </div>

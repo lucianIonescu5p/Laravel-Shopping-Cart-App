@@ -73,6 +73,10 @@ class ProductsController extends Controller
      */
     public function edit(Product $product)
     {
+        if (request()->ajax()) {
+            return $product;
+        }
+
         return view('products.edit', compact('product'));
     }
 
@@ -111,6 +115,12 @@ class ProductsController extends Controller
 
         $product->save();
 
+        if (request()->ajax()) {
+            return response()->json([
+                'success' => 'Product updated'
+            ]);
+        }
+
         return redirect('/products');
     }
 
@@ -128,6 +138,12 @@ class ProductsController extends Controller
         }
 
         $product->delete();
+
+        if (request()->ajax()) {
+            return response()->json([
+                'product' => 'destroyed'
+            ]);
+        }
 
         return redirect('/products');
     }
