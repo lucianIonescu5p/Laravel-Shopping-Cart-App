@@ -13,7 +13,20 @@ class OrdersController extends Controller
      */
     public function orders()
     {
-        $orders = Order::all();
+        $orders = Order::with([
+            'products' => function ($query) {
+                $query->select('price');
+            }
+        ])->get();
+
+        $result = [
+            'orders' => $orders
+        ];
+
+
+        if (request()->ajax()) {
+            return $result;
+        }
         return view('orders.orders', compact('orders'));
     }
 
@@ -26,6 +39,15 @@ class OrdersController extends Controller
     {
         $request = request('id');
         $order = Order::findOrFail($request);
+
+        $result = [
+          'order' => $order,
+          'product' => $order->with('products')->get()
+        ];
+
+        if (request()->ajax()) {
+            return $result;
+        }
 
        return view('orders.order', compact('request', 'order'));
     }

@@ -92,6 +92,63 @@
                     return html;
                 };
 
+                // A function that takes an orders array and renders it's html
+                function renderOrders (orders) {
+                    let html = [
+                        '<table border="1" cellpadding="3">',
+                        '<tr>',
+                        '<th align="middle"><center>{{ __('Order ID') }}</center></th>',
+                        '<th align="middle"><center>{{ __('Name') }}</center></th>',
+                        '<th align="middle"><center>{{ __('Price') }}</center></th>',
+                        '<th align="middle"><center>{{ __('Action') }}</center></th>'
+                    ].join('')
+
+                    $.each(orders, function (key, order) {
+                        let price = 0
+                        $.each(order.products, function(key, product) {
+                            price += product.price;
+                        })
+
+                        html += [
+                            '<tr>',
+                            '<td align="middle">' + order.id + '</td>',
+                            '<td align="middle">' + order.name + '</td>',
+                            '<td align="middle">' + price + '</td>',
+                            '<td align="middle"><button class="view-order btn btn-success" data-id="' + order.id + '">{{ __('View') }}</button></td>',
+                            '</tr>',
+                        ].join('');
+                    })
+
+                    html += '</table>';
+
+                    return html;
+                }
+
+                // A function that renders the individual order's products
+                function renderOrderView (order) {
+                    html = [
+                        '<table border="1" cellpadding="3">',
+                        '<tr>',
+                        '<th align="middle"><center>{{ __('Image') }}</center></th>',
+                        '<th align="middle"><center>{{ __('Title') }}</center></th>',
+                        '<th align="middle"><center>{{ __('Description') }}</center></th>',
+                        '<th align="middle"><center>{{ __('Price') }}</center></th>'].join('')
+
+                    $.each(order, function(key, product) {
+                        html += [
+                            '<tr>',
+                            '<td align="middle">' + product.image + '</td>',
+                            '<td align="middle">' + product.title + '</td>',
+                            '<td align="middle">' + product.description + '</td>',
+                            '<td align="middle">' + product.price + '</td>',
+                            '</tr>'
+                        ].join('');
+                    })
+
+                    html += '</table>'
+
+                    return html;
+                }
                 // Middleware handler
                 function redirectUnauthorised (response) {
                     if (response.unauthorised) {
@@ -148,6 +205,21 @@
                             // Show the products page
                             $('.products').show();
 
+                            $.ajax('/products', {
+                                dataType: 'json',
+                                success: function (response) {
+                                    // If not logged in, redirect to login page
+                                    redirectUnauthorised(response);
+
+                                    $('.products .list').html(renderList(response));
+                                },
+                                error: function (error) {
+                                  cosole.log('{{ __('Something bad happened') }}' + '' + error);
+                            }
+                            })
+                            break;
+
+                        case '#product':
                             if (parts.length > 1) {
                                 $('.page').hide();
 
@@ -174,21 +246,30 @@
                                         $('.product-create').hide();
                                         $('.product-update').show();
                                         break;
+                                    }
                                 }
-                            } else {
-                                $.ajax('/products', {
-                                    dataType: 'json',
-                                    success: function (response) {
-                                        // If not logged in, redirect to login page
-                                        redirectUnauthorised(response);
+                            break;
 
-                                        $('.products .list').html(renderList(response));
-                                    },
-                                    error: function (error) {
-                                      cosole.log('{{ __('Something bad happened') }}' + '' + error);
+                        case '#orders':
+                            // Show the orders page
+                            $('.orders').show();
+
+                            $.ajax('/orders', {
+                                dataType: 'json',
+                                success: function (response) {
+                                    redirectUnauthorised(response);
+
+                                    $('.orders .order-list').html(renderOrders(response.orders, response.price))
+                                },
+                                error: function (error) {
+                                    console.log(error);
                                 }
-                                })
-                            }
+                            })
+                            break;
+
+                        case '#order':
+                            // Show the individual order page
+                            $('.order').show();
                             break;
 
                         default:
@@ -269,10 +350,11 @@
 
             // Update product
             $(document).on('click', '.edit-product', function () {
-                $.ajax('/products/' + $(this).data('id') + '/edit', {
+                let id = $(this).data('id');
+                $.ajax('/products/' + id + '/edit', {
                     dataType: 'json',
                     success: function (response) {
-                        window.location.hash = '#products/edit';
+                        window.location.hash = '#product/' + id + '/edit';
 
                         $('.product-form').each(function () {
                             this.reset();
@@ -517,6 +599,7 @@
                 e.preventDefault();
 
                 let data = new FormData();
+                data.append('_method', 'PUT');
                 data.append('title', $('input[id=title]').val());
                 data.append('description', $('input[id=description]').val());
                 data.append('price', $('input[id=price]').val());
@@ -529,7 +612,7 @@
                 $('.product-update').html('{{ __('Please wait') . '...' }}')
 
                 $.ajax('/products/' + parseInt($('input[id=product-id]').val()), {
-                    type: 'PUT',
+                    type: 'POST',
                     dataType: 'json',
                     data: data,
                     cache: false,
@@ -599,6 +682,21 @@
                     $('.price-error').hide();
                     $('#price').removeClass('is-invalid');
                 });
+            });
+
+            // View order functionality
+            $(document).on('click', '.view-order', function () {
+                let id = $(this).data('id');
+                $.ajax('/order', {
+                    dataType: 'json',
+                    data: {id},
+                    success: function (response) {
+                        window.location.hash = '#order/' + id;
+                    },
+                    error: function (error) {
+
+                    }
+                })
             });
 
         </script>
@@ -692,7 +790,7 @@
         <div class="page products container">
             <div class="list mb-1"></div>
 
-            <a href="#products/create" class="btn btn-primary">{{ __('Add new product') }}</a>
+            <a href="#product/create" class="btn btn-primary">{{ __('Add new product') }}</a>
         </div>
 
         <!-- The product create/edit page -->
@@ -733,6 +831,18 @@
                     <button type="button" class="product-update btn btn-warning">{{ __('Update') }}</button>
                 </form>
             </div>
+        </div>
+
+        <!-- The Orders page -->
+        <div class="page orders container">
+            <!-- The order element where the products list is rendered -->
+            <div class="order-list"></div>
+        </div>
+
+        <!-- The Orders page -->
+        <div class="page order container">
+            <!-- The order element where the products list is rendered -->
+            <div class="order-view">{{ __('Hi there') }}</div>
         </div>
     </body>
 </html>
