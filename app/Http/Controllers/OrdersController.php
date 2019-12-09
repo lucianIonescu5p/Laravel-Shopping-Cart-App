@@ -41,8 +41,8 @@ class OrdersController extends Controller
         $order = Order::findOrFail($request);
 
         $result = [
-          'order' => $order,
-          'product' => $order->with('products')->get()
+            'order' => $order,
+            'products' => $order->products()->get()
         ];
 
         if (request()->ajax()) {

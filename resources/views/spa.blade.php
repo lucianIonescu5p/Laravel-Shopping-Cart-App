@@ -9,6 +9,25 @@
         <!-- Custom JS script -->
         <script type="text/javascript">
             $(document).ready(function () {
+                // Create a variable that holds the product ID
+                let editId;
+
+                $(document).on('click', '.edit-product', function () {
+                    editId = $(this).data('id');
+
+                    window.location.hash = '#product/' + editId + '/edit';
+                })
+
+                // Create a variable that holds the order ID
+                let orderId;
+
+                $(document).on('click', '.view-order', function () {
+                    orderId = $(this).data('id');
+
+                    window.location.hash = '#order/' + orderId;
+                    $('.order .order-view').empty();
+                    $('.order .order-list').empty();
+                });
 
                 /**
                  * A function that takes a products array and renders it's html
@@ -35,7 +54,7 @@
                         '<th align="middle"><center>{{ __('Description') }}</center></th>',
                         '<th align="middle"><center>{{ __('Price') }}</center></th>'].join('')
 
-                    if (parts[0] = '#products') {
+                    if (parts === '#products') {
                         html += [
                             '<th colspan="3" align="middle"><center>{{ __('Action') }}</center></th>',
                             '</tr>'
@@ -137,7 +156,7 @@
                     $.each(order, function(key, product) {
                         html += [
                             '<tr>',
-                            '<td align="middle">' + product.image + '</td>',
+                            '<td align="middle"><img src="storage/images/' + product.image + '" width="70px" height="70px"></td>',
                             '<td align="middle">' + product.title + '</td>',
                             '<td align="middle">' + product.description + '</td>',
                             '<td align="middle">' + product.price + '</td>',
@@ -149,12 +168,14 @@
 
                     return html;
                 }
+
                 // Middleware handler
                 function redirectUnauthorised (response) {
                     if (response.unauthorised) {
                         window.location = '/spa#login';
                     }
                 };
+
                 /**
                  * URL hash change handler
                  */
@@ -166,18 +187,18 @@
 
                     switch (parts[0]) {
                         case '#cart':
-                            // Show the cart page
-                            $('.cart').show();
                             // Load the cart products from the server
                             $.ajax('/cart', {
                                 dataType: 'json',
                                 success: function (response) {
                                     if (response.cart === false) {
+                                        $('.cart').show();
                                         // Hide the checkout form
                                         $('.cart .checkout-form').hide();
                                         // Don't render the products if there is nothing in the cart
                                         $('.cart .list').html('<p class="mt-4">{{ __('Cart is empty') }}</p>')
                                     } else {
+                                        $('.cart').show();
                                         // Render the checkout form
                                         $('.cart .checkout-form').css('display', 'block');
                                         // Render the products in the cart list
@@ -202,15 +223,13 @@
                             break;
 
                         case '#products':
-                            // Show the products page
-                            $('.products').show();
-
                             $.ajax('/products', {
                                 dataType: 'json',
                                 success: function (response) {
                                     // If not logged in, redirect to login page
                                     redirectUnauthorised(response);
 
+                                    $('.products').show();
                                     $('.products .list').html(renderList(response));
                                 },
                                 error: function (error) {
@@ -223,43 +242,55 @@
                             if (parts.length > 1) {
                                 $('.page').hide();
 
-                                switch (parts[1]) {
-                                    case 'create':
-                                        $('.product-form').each(function () {
-                                            this.reset();
-                                        })
+                               if (parts[1] === 'create') {
+                                   $('.product-form').each(function () {
+                                       this.reset();
+                                   })
 
-                                        $.ajax('/products/create', {
-                                            dataType: 'json',
-                                            success: function (response) {
-                                                redirectUnauthorised(response);
+                                   $.ajax('/products/create', {
+                                       dataType: 'json',
+                                       success: function (response) {
+                                           redirectUnauthorised(response);
 
-                                                $('.products-manipulate').show();
-                                                $('.product-update').hide();
-                                                $('.product-create').show();
-                                            }
-                                        })
-                                        break;
+                                           $('.products-manipulate').show();
+                                           $('.product-update').hide();
+                                           $('.product-create').show();
+                                       }
+                                   })
+                               }
+                            }
 
-                                    case 'edit':
+                            if (parts[1] == editId && parts[2] == 'edit') {
+                                $('.product-form').each(function () {
+                                    this.reset();
+                                })
+
+                                $.ajax('/products/' + editId + '/edit', {
+                                    dataType: 'json',
+                                    success: function (response) {
+                                        redirectUnauthorised(response);
+
                                         $('.products-manipulate').show();
-                                        $('.product-create').hide();
                                         $('.product-update').show();
-                                        break;
+                                        $('.product-create').hide();
+
+                                        $('#title').val(response.title);
+                                        $('#description').val(response.description);
+                                        $('#price').val(response.price);
+                                        $('#product-id').val(response.id);
                                     }
-                                }
+                                })
+                            }
                             break;
 
                         case '#orders':
-                            // Show the orders page
-                            $('.orders').show();
-
                             $.ajax('/orders', {
                                 dataType: 'json',
                                 success: function (response) {
                                     redirectUnauthorised(response);
 
-                                    $('.orders .order-list').html(renderOrders(response.orders, response.price))
+                                    $('.orders').show();
+                                    $('.orders .orders-list').html(renderOrders(response.orders, response.price))
                                 },
                                 error: function (error) {
                                     console.log(error);
@@ -270,20 +301,42 @@
                         case '#order':
                             // Show the individual order page
                             $('.order').show();
+
+                            if (parts.length > 1) {
+                                if (parts[1] == orderId) {
+                                    $.ajax('/order', {
+                                        dataType: 'json',
+                                        data: {
+                                            id: orderId
+                                        },
+                                        success: function (response) {
+                                            redirectUnauthorised(response);
+
+                                            $('.order .order-view').append('<p><strong>{{ __('Order ID') . ': ' }}</strong>' + response.order.id + '</p>')
+                                            $('.order .order-view').append('<p><strong>{{ __('Order name') . ': ' }}</strong>' + response.order.name + '</p>')
+                                            $('.order .order-view').append('<p><strong>{{ __('Order Email') . ': ' }}</strong>' + response.order.email + '</p>')
+                                            $('.order .order-list').html(renderOrderView(response.products))
+                                        },
+                                        error: function (error) {
+                                            console.log(error);
+                                        }
+                                    })
+                                }
+                            }
                             break;
 
                         default:
                             // If all else fails, always default to index
-                            // Show the index page
-                            $('.index').show();
                             // Load the index products from the server
                             $.ajax('/', {
                                 dataType: 'json',
                                 success: function (response) {
                                     if (!response.length) {
+                                        $('.index').show();
                                         // Don't render the products table if all products in cart
                                         $('.index .list').html('<p class="mt-4">{{ __('All products in cart') }}</p>')
                                     } else {
+                                        $('.index').show();
                                         // Render the products in the index list
                                         $('.index .list').html(renderList(response));
                                     }
@@ -294,411 +347,372 @@
                 }
 
                 window.onhashchange();
-            });
 
-            // Validating CSRF Token
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-
-            // add products to cart
-            $(document).on('click', '.add-to-cart', function () {
-                $.ajax('/', {
-                    data: {
-                        id: $(this).data('id')
-                    },
-                    dataType: 'json',
-                    success: function () {
-                        window.onhashchange();
+                // Validating CSRF Token
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     }
                 });
-            });
 
-            // remove products from cart
-            $(document).on('click', '.remove-from-cart', function () {
-                $.ajax('/cart', {
-                    data: {
-                        id: $(this).data('id')
-                    },
-                    dataType: 'json',
-                    success: function () {
-                        window.onhashchange();
-                    }
-                });
-            });
-
-            // Delete product from database functionality
-            $(document).on('click', '.delete-from-database', function () {
-                let id = $(this).data('id');
-
-                $.ajax('/products/' + id, {
-                    type: 'DELETE',
-                    data: {
-                        id
-                    },
-                    dataType: 'json',
-                    success: function () {
-                        window.onhashchange();
-                    },
-                    error: function (error) {
-                        console.log(error);
-                    }
-                });
-            })
-
-            // Update product
-            $(document).on('click', '.edit-product', function () {
-                let id = $(this).data('id');
-                $.ajax('/products/' + id + '/edit', {
-                    dataType: 'json',
-                    success: function (response) {
-                        window.location.hash = '#product/' + id + '/edit';
-
-                        $('.product-form').each(function () {
-                            this.reset();
-                        })
-
-                        $('#title').val(response.title);
-                        $('#description').val(response.description);
-                        $('#price').val(response.price);
-                        $('#product-id').val(response.id);
-                    },
-                    error: function (error) {
-                        console.log(error);
-                    }
-                });
-            })
-
-            // Checkout form
-            $(document).on('click', '.submit', function (e) {
-                e.preventDefault();
-
-                let data = new FormData();
-                data.append('name', $('input[id=name]').val());
-                data.append('email', $('input[id=email]').val());
-                data.append('comments', $('textarea[id=comments]').val());
-
-
-                $('.submit').prop('disabled', true);
-                $('.submit').html('{{ __('Please wait') . '...' }}')
-
-                $.ajax('/cart', {
-                    type: 'POST',
-                    dataType: 'json',
-                    data: data,
-                    cache: false,
-                    contentType: false,
-                    processData: false,
-                    success: function (result) {
-                        alert(result.success);
-
-                        $('.checkout-form').each(function () {
-                            this.reset();
-                        })
-
-                        $('.submit').prop('disabled', false);
-                        $('.submit').html('{{ __('Checkout') }}');
-
-                        window.onhashchange();
-                    },
-                    error: function (error) {
-                        $('.submit').prop('disabled', false);
-                        $('.submit').html('{{ __('Checkout') }}');
-
-                        let errorMessage = JSON.parse(error.responseText)
-
-                        if (errorMessage.errors.hasOwnProperty('name')) {
-                            let nameError = $('.name-error');
-                            nameError.css('display', 'block');
-                            nameError.html(errorMessage.errors['name']);
-
-                            $('#name').addClass('is-invalid');
+                // add products to cart
+                $(document).on('click', '.add-to-cart', function () {
+                    $.ajax('/', {
+                        data: {
+                            id: $(this).data('id')
+                        },
+                        dataType: 'json',
+                        success: function () {
+                            window.onhashchange();
                         }
+                    });
+                });
 
-                        if (errorMessage.errors.hasOwnProperty('email')) {
-                            let emailError = $('.email-error');
-                            emailError.css('display', 'block');
-                            emailError.html(errorMessage.errors['email']);
-
-                            $('#email').addClass('is-invalid');
+                // remove products from cart
+                $(document).on('click', '.remove-from-cart', function () {
+                    $.ajax('/cart', {
+                        data: {
+                            id: $(this).data('id')
+                        },
+                        dataType: 'json',
+                        success: function () {
+                            window.onhashchange();
                         }
+                    });
+                });
 
-                        if (errorMessage.errors.hasOwnProperty('comments')) {
-                            let commentsError = $('.comments-error');
-                            commentsError.css('display', 'block');
-                            commentsError.html(errorMessage.errors['comments']);
+                // Delete product from database functionality
+                $(document).on('click', '.delete-from-database', function () {
+                    let id = $(this).data('id');
 
-                            $('#comments').addClass('is-invalid');
+                    $.ajax('/products/' + id, {
+                        type: 'DELETE',
+                        data: {
+                            id
+                        },
+                        dataType: 'json',
+                        success: function () {
+                            window.onhashchange();
+                        },
+                        error: function (error) {
+                            console.log(error);
                         }
-                    }
+                    });
                 })
 
-                $('input[id=name]').keypress(function () {
-                    $('.name-error').hide();
-                    $('#name').removeClass('is-invalid');
+                // Checkout form
+                $(document).on('click', '.submit', function (e) {
+                    e.preventDefault();
 
-                });
+                    let data = new FormData();
+                    data.append('name', $('input[id=name]').val());
+                    data.append('email', $('input[id=email]').val());
+                    data.append('comments', $('textarea[id=comments]').val());
 
-                $('input[id=email]').keypress(function () {
-                    $('.email-error').hide();
-                    $('#email').removeClass('is-invalid');
-                });
 
-                $('textarea[id=comments]').keypress(function () {
-                    $('.comments-error').hide();
-                    $('#comments').removeClass('is-invalid');
-                });
-            });
+                    $('.submit').prop('disabled', true);
+                    $('.submit').html('{{ __('Please wait') . '...' }}')
 
-            // Handle admin login functionality
-            $(document).on('click', '.login-submit', function (e) {
-                e.preventDefault();
+                    $.ajax('/cart', {
+                        type: 'POST',
+                        dataType: 'json',
+                        data: data,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        success: function (result) {
+                            alert(result.success);
 
-                let data = new FormData();
-                data.append('username', $('input[id=username]').val());
-                data.append('password', $('input[id=password]').val());
+                            $('.checkout-form').each(function () {
+                                this.reset();
+                            })
 
-                $.ajax('/login', {
-                    type: 'POST',
-                    data: data,
-                    cache: false,
-                    contentType: false,
-                    processData: false,
-                    success: function () {
-                        $('#login-btn').attr('href', '#logout');
-                        $('#login-btn').attr('id', 'logout-btn');
-                        $('#logout-btn').html(`<strong>{{ __('Log Out') }}</strong>`);
+                            $('.submit').prop('disabled', false);
+                            $('.submit').html('{{ __('Checkout') }}');
 
-                        window.location.hash = '#products';
-                    },
-                    error: function (error) {
-                        let errorMessage = JSON.parse(error.responseText)
+                            window.onhashchange();
+                        },
+                        error: function (error) {
+                            $('.submit').prop('disabled', false);
+                            $('.submit').html('{{ __('Checkout') }}');
 
-                        if (errorMessage.errors.hasOwnProperty('username')) {
-                            let usernameError = $('.username-error');
-                            usernameError.css('display', 'block');
-                            usernameError.html(errorMessage.errors['username']);
+                            let errorMessage = JSON.parse(error.responseText)
 
-                            $('#username').addClass('is-invalid')
+                            if (errorMessage.errors.hasOwnProperty('name')) {
+                                let nameError = $('.name-error');
+                                nameError.css('display', 'block');
+                                nameError.html(errorMessage.errors['name']);
+
+                                $('#name').addClass('is-invalid');
+                            }
+
+                            if (errorMessage.errors.hasOwnProperty('email')) {
+                                let emailError = $('.email-error');
+                                emailError.css('display', 'block');
+                                emailError.html(errorMessage.errors['email']);
+
+                                $('#email').addClass('is-invalid');
+                            }
+
+                            if (errorMessage.errors.hasOwnProperty('comments')) {
+                                let commentsError = $('.comments-error');
+                                commentsError.css('display', 'block');
+                                commentsError.html(errorMessage.errors['comments']);
+
+                                $('#comments').addClass('is-invalid');
+                            }
                         }
+                    })
 
-                        if (errorMessage.errors.hasOwnProperty('password')) {
-                            let passwordError = $('.password-error');
-                            passwordError.css('display', 'block');
-                            passwordError.html(errorMessage.errors['password']);
+                    $('input[id=name]').keypress(function () {
+                        $('.name-error').hide();
+                        $('#name').removeClass('is-invalid');
 
-                            $('#password').addClass('is-invalid')
+                    });
+
+                    $('input[id=email]').keypress(function () {
+                        $('.email-error').hide();
+                        $('#email').removeClass('is-invalid');
+                    });
+
+                    $('textarea[id=comments]').keypress(function () {
+                        $('.comments-error').hide();
+                        $('#comments').removeClass('is-invalid');
+                    });
+                });
+
+                // Handle admin login functionality
+                $(document).on('click', '.login-submit', function (e) {
+                    e.preventDefault();
+
+                    let data = new FormData();
+                    data.append('username', $('input[id=username]').val());
+                    data.append('password', $('input[id=password]').val());
+
+                    $.ajax('/login', {
+                        type: 'POST',
+                        data: data,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        success: function () {
+                            $('#login-btn').attr('href', '#logout');
+                            $('#login-btn').attr('id', 'logout-btn');
+                            $('#logout-btn').html(`<strong>{{ __('Log Out') }}</strong>`);
+
+                            window.location.hash = '#products';
+                        },
+                        error: function (error) {
+                            let errorMessage = JSON.parse(error.responseText)
+
+                            if (errorMessage.errors.hasOwnProperty('username')) {
+                                let usernameError = $('.username-error');
+                                usernameError.css('display', 'block');
+                                usernameError.html(errorMessage.errors['username']);
+
+                                $('#username').addClass('is-invalid')
+                            }
+
+                            if (errorMessage.errors.hasOwnProperty('password')) {
+                                let passwordError = $('.password-error');
+                                passwordError.css('display', 'block');
+                                passwordError.html(errorMessage.errors['password']);
+
+                                $('#password').addClass('is-invalid')
+                            }
                         }
+                    })
+
+                    $('input[id=username]').keypress(function () {
+                        $('.username-error').hide();
+                        $('#username').removeClass('is-invalid');
+                    });
+
+                    $('input[id=password]').keypress(function () {
+                        $('.password-error').hide();
+                        $('#password').removeClass('is-invalid');
+                    });
+                });
+
+                // Product create functionality
+                $(document).on('click', '.product-create', function (e) {
+                    e.preventDefault();
+
+                    let data = new FormData();
+                    data.append('title', $('input[id=title]').val());
+                    data.append('description', $('input[id=description]').val());
+                    data.append('price', $('input[id=price]').val());
+
+                    if ($('#image').get(0).files.length !== 0) {
+                        data.append('image', $('#image')[0].files[0]);
                     }
-                })
 
-                $('input[id=username]').keypress(function () {
-                    $('.username-error').hide();
-                    $('#username').removeClass('is-invalid');
+                    $('.product-create').prop('disabled', true);
+                    $('.product-create').html('{{ __('Please wait') . '...' }}')
+
+                    $.ajax('/products', {
+                        type: 'POST',
+                        dataType: 'json',
+                        data: data,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        success: function () {
+                            $('.product-create').prop('disabled', false);
+                            $('.product-create').html('{{ __('Create') }}');
+
+                            $('.product-form').each(function () {
+                                this.reset();
+                            })
+
+                            window.location.hash='#products';
+                        },
+                        error: function (error) {
+                            $('.product-create').prop('disabled', false);
+                            $('.product-create').html('{{ __('Create') }}');
+
+                            let errorMessage = JSON.parse(error.responseText)
+
+                            if (errorMessage.errors.hasOwnProperty('title')) {
+                                let titleError = $('.title-error');
+                                titleError.css('display', 'block');
+                                titleError.html(errorMessage.errors['title']);
+
+                                $('#title').addClass('is-invalid');
+                            }
+
+                            if (errorMessage.errors.hasOwnProperty('description')) {
+                                let descriptionError = $('.description-error');
+                                descriptionError.css('display', 'block');
+                                descriptionError.html(errorMessage.errors['description']);
+
+                                $('#description').addClass('is-invalid');
+                            }
+
+                            if (errorMessage.errors.hasOwnProperty('price')) {
+                                let priceError = $('.price-error');
+                                priceError.css('display', 'block');
+                                priceError.html(errorMessage.errors['price']);
+
+                                $('#price').addClass('is-invalid');
+                            }
+
+                            if (errorMessage.errors.hasOwnProperty('image')) {
+                                let imageError = $('.image-error');
+                                imageError.css('display', 'block');
+                                imageError.html(errorMessage.errors['image']);
+
+                                $('#image').addClass('is-invalid');
+                            }
+                        }
+                    })
+
+                    $('input[id=title]').keypress(function () {
+                        $('.title-error').hide();
+                        $('#title').removeClass('is-invalid');
+                    });
+
+                    $('input[id=description]').keypress(function () {
+                        $('.description-error').hide();
+                        $('#description').removeClass('is-invalid');
+                    });
+
+                    $('input[id=price]').keypress(function () {
+                        $('.price-error').hide();
+                        $('#price').removeClass('is-invalid');
+                    });
                 });
 
-                $('input[id=password]').keypress(function () {
-                    $('.password-error').hide();
-                    $('#password').removeClass('is-invalid');
-                });
-            });
+                // Product update functionality
+                $(document).on('click', '.product-update', function (e) {
+                    e.preventDefault();
 
-            // Product create functionality
-            $(document).on('click', '.product-create', function (e) {
-                e.preventDefault();
+                    let data = new FormData();
+                    data.append('_method', 'PUT');
+                    data.append('title', $('input[id=title]').val());
+                    data.append('description', $('input[id=description]').val());
+                    data.append('price', $('input[id=price]').val());
 
-                let data = new FormData();
-                data.append('title', $('input[id=title]').val());
-                data.append('description', $('input[id=description]').val());
-                data.append('price', $('input[id=price]').val());
-
-                if ($('#image').get(0).files.length !== 0) {
-                    data.append('image', $('#image')[0].files[0]);
-                }
-
-                $('.product-create').prop('disabled', true);
-                $('.product-create').html('{{ __('Please wait') . '...' }}')
-
-                $.ajax('/products', {
-                    type: 'POST',
-                    dataType: 'json',
-                    data: data,
-                    cache: false,
-                    contentType: false,
-                    processData: false,
-                    success: function () {
-                        $('.product-create').prop('disabled', false);
-                        $('.product-create').html('{{ __('Create') }}');
-
-                        $('.product-form').each(function () {
-                            this.reset();
-                        })
-
-                        window.location.hash='#products';
-                    },
-                    error: function (error) {
-                        $('.product-create').prop('disabled', false);
-                        $('.product-create').html('{{ __('Create') }}');
-
-                        let errorMessage = JSON.parse(error.responseText)
-
-                        if (errorMessage.errors.hasOwnProperty('title')) {
-                            let titleError = $('.title-error');
-                            titleError.css('display', 'block');
-                            titleError.html(errorMessage.errors['title']);
-
-                            $('#title').addClass('is-invalid');
-                        }
-
-                        if (errorMessage.errors.hasOwnProperty('description')) {
-                            let descriptionError = $('.description-error');
-                            descriptionError.css('display', 'block');
-                            descriptionError.html(errorMessage.errors['description']);
-
-                            $('#description').addClass('is-invalid');
-                        }
-
-                        if (errorMessage.errors.hasOwnProperty('price')) {
-                            let priceError = $('.price-error');
-                            priceError.css('display', 'block');
-                            priceError.html(errorMessage.errors['price']);
-
-                            $('#price').addClass('is-invalid');
-                        }
-
-                        if (errorMessage.errors.hasOwnProperty('image')) {
-                            let imageError = $('.image-error');
-                            imageError.css('display', 'block');
-                            imageError.html(errorMessage.errors['image']);
-
-                            $('#image').addClass('is-invalid');
-                        }
+                    if ($('#image').get(0).files.length !== 0) {
+                        data.append('image', $('#image')[0].files[0]);
                     }
-                })
 
-                $('input[id=title]').keypress(function () {
-                    $('.title-error').hide();
-                    $('#title').removeClass('is-invalid');
-                });
+                    $('.product-update').prop('disabled', true);
+                    $('.product-update').html('{{ __('Please wait') . '...' }}')
 
-                $('input[id=description]').keypress(function () {
-                    $('.description-error').hide();
-                    $('#description').removeClass('is-invalid');
-                });
+                    $.ajax('/products/' + parseInt($('input[id=product-id]').val()), {
+                        type: 'POST',
+                        dataType: 'json',
+                        data: data,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        success: function () {
+                            $('.product-update').prop('disabled', false);
+                            $('.product-update').html('{{ __('Update') }}');
 
-                $('input[id=price]').keypress(function () {
-                    $('.price-error').hide();
-                    $('#price').removeClass('is-invalid');
+                            $('.product-form').each(function () {
+                                this.reset();
+                            })
+
+                            window.location.hash='#products';
+                        },
+                        error: function (error) {
+                            $('.product-update').prop('disabled', false);
+                            $('.product-update').html('{{ __('Update') }}');
+
+                            let errorMessage = JSON.parse(error.responseText)
+
+                            if (errorMessage.errors.hasOwnProperty('title')) {
+                                let titleError = $('.title-error');
+                                titleError.css('display', 'block');
+                                titleError.html(errorMessage.errors['title']);
+
+                                $('#title').addClass('is-invalid');
+                            }
+
+                            if (errorMessage.errors.hasOwnProperty('description')) {
+                                let descriptionError = $('.description-error');
+                                descriptionError.css('display', 'block');
+                                descriptionError.html(errorMessage.errors['description']);
+
+                                $('#description').addClass('is-invalid');
+                            }
+
+                            if (errorMessage.errors.hasOwnProperty('price')) {
+                                let priceError = $('.price-error');
+                                priceError.css('display', 'block');
+                                priceError.html(errorMessage.errors['price']);
+
+                                $('#price').addClass('is-invalid');
+                            }
+
+                            if (errorMessage.errors.hasOwnProperty('image')) {
+                                let imageError = $('.image-error');
+                                imageError.css('display', 'block');
+                                imageError.html(errorMessage.errors['image']);
+
+                                $('#image').addClass('is-invalid');
+                            }
+                        }
+                    })
+
+                    $('input[id=title]').keypress(function () {
+                        $('.title-error').hide();
+                        $('#title').removeClass('is-invalid');
+                    });
+
+                    $('input[id=description]').keypress(function () {
+                        $('.description-error').hide();
+                        $('#description').removeClass('is-invalid');
+                    });
+
+                    $('input[id=price]').keypress(function () {
+                        $('.price-error').hide();
+                        $('#price').removeClass('is-invalid');
+                    });
                 });
             });
-
-            // Product edit functionality
-            $(document).on('click', '.product-update', function (e) {
-                e.preventDefault();
-
-                let data = new FormData();
-                data.append('_method', 'PUT');
-                data.append('title', $('input[id=title]').val());
-                data.append('description', $('input[id=description]').val());
-                data.append('price', $('input[id=price]').val());
-
-                if ($('#image').get(0).files.length !== 0) {
-                    data.append('image', $('#image')[0].files[0]);
-                }
-
-                $('.product-update').prop('disabled', true);
-                $('.product-update').html('{{ __('Please wait') . '...' }}')
-
-                $.ajax('/products/' + parseInt($('input[id=product-id]').val()), {
-                    type: 'POST',
-                    dataType: 'json',
-                    data: data,
-                    cache: false,
-                    contentType: false,
-                    processData: false,
-                    success: function (response) {
-                        $('.product-update').prop('disabled', false);
-                        $('.product-update').html('{{ __('Update') }}');
-
-                        $('.product-form').each(function () {
-                            this.reset();
-                        })
-
-                        window.location.hash='#products';
-                    },
-                    error: function (error) {
-                        $('.product-update').prop('disabled', false);
-                        $('.product-update').html('{{ __('Update') }}');
-
-                        let errorMessage = JSON.parse(error.responseText)
-
-                        if (errorMessage.errors.hasOwnProperty('title')) {
-                            let titleError = $('.title-error');
-                            titleError.css('display', 'block');
-                            titleError.html(errorMessage.errors['title']);
-
-                            $('#title').addClass('is-invalid');
-                        }
-
-                        if (errorMessage.errors.hasOwnProperty('description')) {
-                            let descriptionError = $('.description-error');
-                            descriptionError.css('display', 'block');
-                            descriptionError.html(errorMessage.errors['description']);
-
-                            $('#description').addClass('is-invalid');
-                        }
-
-                        if (errorMessage.errors.hasOwnProperty('price')) {
-                            let priceError = $('.price-error');
-                            priceError.css('display', 'block');
-                            priceError.html(errorMessage.errors['price']);
-
-                            $('#price').addClass('is-invalid');
-                        }
-
-                        if (errorMessage.errors.hasOwnProperty('image')) {
-                            let imageError = $('.image-error');
-                            imageError.css('display', 'block');
-                            imageError.html(errorMessage.errors['image']);
-
-                            $('#image').addClass('is-invalid');
-                        }
-                    }
-                })
-
-                $('input[id=title]').keypress(function () {
-                    $('.title-error').hide();
-                    $('#title').removeClass('is-invalid');
-                });
-
-                $('input[id=description]').keypress(function () {
-                    $('.description-error').hide();
-                    $('#description').removeClass('is-invalid');
-                });
-
-                $('input[id=price]').keypress(function () {
-                    $('.price-error').hide();
-                    $('#price').removeClass('is-invalid');
-                });
-            });
-
-            // View order functionality
-            $(document).on('click', '.view-order', function () {
-                let id = $(this).data('id');
-                $.ajax('/order', {
-                    dataType: 'json',
-                    data: {id},
-                    success: function (response) {
-                        window.location.hash = '#order/' + id;
-                    },
-                    error: function (error) {
-
-                    }
-                })
-            });
-
         </script>
     </head>
     <body>
@@ -739,21 +753,21 @@
                     <label for="name">{{ __('Name') }}</label>
                     <input type="text" class="form-control" id="name" placeholder="{{ __('Enter Name') }}">
 
-                    <p class="name-error text-danger" style="display: none"></p>
+                    <p class="error name-error text-danger" style="display: none"></p>
                 </div>
 
                 <div class="form-group">
                     <label for="email">{{ __('Email') }}</label>
                     <input type="text" class="form-control" id="email" placeholder="{{ __('Enter Email') }}">
 
-                    <p class="email-error text-danger" style="display: none"></p>
+                    <p class="error email-error text-danger" style="display: none"></p>
                 </div>
 
                 <div class="form-group">
                     <label for="comments">{{ __('Comments') }}</label>
                     <textarea class="form-control" id="comments" rows="3"></textarea>
 
-                    <p class="comments-error text-danger" style="display: none"></p>
+                    <p class="error comments-error text-danger" style="display: none"></p>
                 </div>
 
                 <button type="submit" class="submit btn btn-primary">{{ __('Checkout') }}</button>
@@ -836,13 +850,15 @@
         <!-- The Orders page -->
         <div class="page orders container">
             <!-- The order element where the products list is rendered -->
-            <div class="order-list"></div>
+            <div class="orders-list"></div>
         </div>
 
         <!-- The Orders page -->
         <div class="page order container">
+            <div class="order-view"></div>
+
             <!-- The order element where the products list is rendered -->
-            <div class="order-view">{{ __('Hi there') }}</div>
+            <div class="order-list"></div>
         </div>
     </body>
 </html>
