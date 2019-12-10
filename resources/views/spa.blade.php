@@ -24,9 +24,10 @@
                 $(document).on('click', '.view-order', function () {
                     orderId = $(this).data('id');
 
-                    window.location.hash = '#order/' + orderId;
                     $('.order .order-view').empty();
                     $('.order .order-list').empty();
+
+                    window.location.hash = '#order/' + orderId;
                 });
 
                 /**
@@ -81,11 +82,11 @@
                             '<td align="middle">' + product.price + '</td>'].join('');
 
                         switch (parts) {
-                            case('#cart'):
+                            case '#cart':
                                 html += '<td align="middle"><button class="remove-from-cart btn btn-danger" data-id="' + product.id + '">{{ __('Remove') }}</button></td>';
                                 break;
 
-                            case('#products'):
+                            case '#products':
                                 html += '<td align="middle"><button class="edit-product btn btn-warning" data-id="' + product.id + '">{{ __('Edit') }}</button></td>';
                                 html += '<td align="middle"><button class="delete-from-database btn btn-danger" data-id="' + product.id + '">{{ __('Delete') }}</button></td>';
                                 break;
@@ -124,6 +125,7 @@
 
                     $.each(orders, function (key, order) {
                         let price = 0
+
                         $.each(order.products, function(key, product) {
                             price += product.price;
                         })
