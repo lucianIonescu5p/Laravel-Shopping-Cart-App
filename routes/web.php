@@ -16,6 +16,8 @@ Route::get('/spa', function () {
     return view('spa');
 });
 
+Route::get('/manageAuth', 'AuthStateController@checkAuth');
+
 Route::get('/cart', 'ShopController@cart');
 Route::post('/cart', 'ShopController@mail');
 

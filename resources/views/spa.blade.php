@@ -9,6 +9,22 @@
         <!-- Custom JS script -->
         <script type="text/javascript">
             $(document).ready(function () {
+                $.ajax('/manageAuth', {
+                    dataType: 'json',
+                    success: function (response) {
+                        let loginVar = $('#login-btn');
+
+                        if (response.auth) {
+                            loginVar.attr('id', 'logout-btn');
+                            $('#logout-btn').attr('href', '#logout');
+                            $('#logout-btn').html('<strong>{{ __('Log Out') }}</strong>');
+                        } else {
+                            loginVar.html(`<strong>{{ __('Log In') }}</strong>`);
+                            loginVar.attr('href', '#login');
+                        }
+                    }
+                })
+
                 // Create a variable that holds the product ID
                 let editId;
 
@@ -218,8 +234,14 @@
                         case '#logout':
                             //Log out
                             $.ajax('/logout', {
-                                success: function () {
-                                    window.location = '/spa';
+                                success: function (response) {
+                                    if (! response.auth) {
+                                        $('#logout-btn').attr('href', '#login');
+                                        $('#logout-btn').attr('id', 'login-btn');
+                                        $('#login-btn').html(`<strong>{{ __('Log In') }}</strong>`);
+                                    }
+
+                                    window.location.hash = '';
                                 }
                             })
                             break;
@@ -496,10 +518,16 @@
                         cache: false,
                         contentType: false,
                         processData: false,
-                        success: function () {
-                            $('#login-btn').attr('href', '#logout');
-                            $('#login-btn').attr('id', 'logout-btn');
-                            $('#logout-btn').html(`<strong>{{ __('Log Out') }}</strong>`);
+                        success: function (response) {
+                            $('.login-form').each(function () {
+                                this.reset();
+                            })
+
+                            if (response.auth) {
+                                $('#login-btn').attr('href', '#logout');
+                                $('#login-btn').attr('id', 'logout-btn');
+                                $('#logout-btn').html(`<strong>{{ __('Log Out') }}</strong>`);
+                            }
 
                             window.location.hash = '#products';
                         },
@@ -722,13 +750,7 @@
             <!-- Navbar content -->
             <span class="float-right" style="color: white;">
                 <a class="list-group-item-action p-1 mr-2" href="#"><strong>{{ __('Home') }}</strong></a>
-
-                @if (request()->session()->has('auth') && session('auth'))
-                    <a class="list-group-item-action p-1" id="logout-btn" href="#logout"><strong>{{ __('Log Out') }}</strong></a>
-                @else
-                    <a class="list-group-item-action p-1" id="login-btn" href="#login"><strong>{{ __('Log In') }}</strong></a>
-                @endif
-
+                <a class="list-group-item-action p-1" id="login-btn" ></a>
                 <a class="list-group-item-action p-1" href="#products"><strong>{{ __('Products') }}</strong></a>
                 <a class="list-group-item-action p-1" href="#orders"><strong>{{ __('Orders') }}</strong></a>
             </span>
