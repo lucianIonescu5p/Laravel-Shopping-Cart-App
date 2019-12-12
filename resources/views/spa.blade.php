@@ -71,17 +71,10 @@
                         '<th align="middle"><center>{{ __('Description') }}</center></th>',
                         '<th align="middle"><center>{{ __('Price') }}</center></th>'].join('')
 
-                    if (parts === '#products') {
-                        html += [
-                            '<th colspan="3" align="middle"><center>{{ __('Action') }}</center></th>',
-                            '</tr>'
-                        ].join('');
-                    } else {
-                        html += [
-                            '<th align="middle"><center>{{ __('Action') }}</center></th>',
-                            '</tr>'
-                        ].join('');
-                    }
+                    html += [
+                        '<th ' + (parts ==='#products' ? 'colspan="2"' : '') + ' align="middle"><center>{{ __('Action') }}</center></th>',
+                        '</tr>'
+                    ].join('');
 
                     $.each(products, function (key, product) {
                         html += '<tr>';
@@ -140,17 +133,12 @@
                     ].join('')
 
                     $.each(orders, function (key, order) {
-                        let price = 0
-
-                        $.each(order.products, function(key, product) {
-                            price += product.price;
-                        })
 
                         html += [
                             '<tr>',
                             '<td align="middle">' + order.id + '</td>',
                             '<td align="middle">' + order.name + '</td>',
-                            '<td align="middle">' + price + '</td>',
+                            '<td align="middle">' + order.price + '</td>',
                             '<td align="middle"><button class="view-order btn btn-success" data-id="' + order.id + '">{{ __('View') }}</button></td>',
                             '</tr>',
                         ].join('');
@@ -257,7 +245,7 @@
                                     $('.products .list').html(renderList(response));
                                 },
                                 error: function (error) {
-                                  cosole.log('{{ __('Something bad happened') }}' + '' + error);
+                                  cosole.log('{{ __('Something bad happened') }} ' + error);
                             }
                             })
                             break;
@@ -314,7 +302,7 @@
                                     redirectUnauthorised(response);
 
                                     $('.orders').show();
-                                    $('.orders .orders-list').html(renderOrders(response.orders, response.price))
+                                    $('.orders .orders-list').html(renderOrders(response))
                                 },
                                 error: function (error) {
                                     console.log(error);
@@ -327,25 +315,23 @@
                             $('.order').show();
 
                             if (parts.length > 1) {
-                                if (parts[1] == orderId) {
-                                    $.ajax('/order', {
-                                        dataType: 'json',
-                                        data: {
-                                            id: orderId
-                                        },
-                                        success: function (response) {
-                                            redirectUnauthorised(response);
+                                $.ajax('/order', {
+                                    dataType: 'json',
+                                    data: {
+                                        id: orderId
+                                    },
+                                    success: function (response) {
+                                        redirectUnauthorised(response);
 
-                                            $('.order .order-view').append('<p><strong>{{ __('Order ID') . ': ' }}</strong>' + response.order.id + '</p>')
-                                            $('.order .order-view').append('<p><strong>{{ __('Order name') . ': ' }}</strong>' + response.order.name + '</p>')
-                                            $('.order .order-view').append('<p><strong>{{ __('Order Email') . ': ' }}</strong>' + response.order.email + '</p>')
-                                            $('.order .order-list').html(renderOrderView(response.products))
-                                        },
-                                        error: function (error) {
-                                            console.log(error);
-                                        }
-                                    })
-                                }
+                                        $('.order .order-view').append('<p><strong>{{ __('Order ID') . ': ' }}</strong>' + response.order.id + '</p>')
+                                        $('.order .order-view').append('<p><strong>{{ __('Order name') . ': ' }}</strong>' + response.order.name + '</p>')
+                                        $('.order .order-view').append('<p><strong>{{ __('Order Email') . ': ' }}</strong>' + response.order.email + '</p>')
+                                        $('.order .order-list').html(renderOrderView(response.products))
+                                    },
+                                    error: function (error) {
+                                        console.log(error);
+                                    }
+                                })
                             }
                             break;
 

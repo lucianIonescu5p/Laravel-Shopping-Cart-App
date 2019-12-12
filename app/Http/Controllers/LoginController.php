@@ -35,10 +35,10 @@ class LoginController extends Controller
         session(['auth' => true]);
 
         if (request()->ajax()) {
-            return response()->json([
+            return [
                 'success' => 'Logged in',
                 'auth' => true
-            ]);
+            ];
         }
 
         return redirect('products');
@@ -53,10 +53,10 @@ class LoginController extends Controller
         session()->put(['auth' => false]);
 
         if (request()->ajax()) {
-            return response()->json([
+            return [
                 'success' => 'Logged out',
                 'auth' => false
-            ]);
+            ];
         }
         return redirect('/');
     }

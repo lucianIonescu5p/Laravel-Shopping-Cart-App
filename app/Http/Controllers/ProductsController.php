@@ -31,9 +31,9 @@ class ProductsController extends Controller
     public function create()
     {
         if (request()->ajax()) {
-            return response()->json([
+            return [
                'product' => true
-            ]);
+            ];
         }
         return view('products.create');
     }
@@ -57,9 +57,9 @@ class ProductsController extends Controller
         $product->save();
 
         if (request()->ajax()) {
-            return response()->json([
+            return [
                 'success' => 'Product created'
-            ]);
+            ];
         }
 
         return redirect('/products');
@@ -116,9 +116,9 @@ class ProductsController extends Controller
         $product->save();
 
         if (request()->ajax()) {
-            return response()->json([
+            return [
                 'success' => 'Product updated'
-            ]);
+            ];
         }
 
         return redirect('/products');
@@ -140,9 +140,9 @@ class ProductsController extends Controller
         $product->delete();
 
         if (request()->ajax()) {
-            return response()->json([
+            return [
                 'product' => 'destroyed'
-            ]);
+            ];
         }
 
         return redirect('/products');

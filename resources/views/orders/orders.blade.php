@@ -19,7 +19,7 @@
             <tr>
                 <td align="middle">{{ $order->id }}</td>
                 <td align="middle">{{ $order->name }}</td>
-                <td align="middle">{{ $order->products()->sum('price') }}</td>
+                <td align="middle">{{ $order->price }}</td>
                 <td align="middle"><a href="order?id={{ $order->id }}">{{ __('View') }}</a></td>
             </tr>
         @endforeach

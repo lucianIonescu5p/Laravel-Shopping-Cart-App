@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Order;
+use Illuminate\Support\Facades\DB;
 
 class OrdersController extends Controller
 {
@@ -13,20 +14,17 @@ class OrdersController extends Controller
      */
     public function orders()
     {
-        $orders = Order::with([
-            'products' => function ($query) {
-                $query->select('price');
-            }
-        ])->get();
-
-        $result = [
-            'orders' => $orders
-        ];
-
+        $orders = Order::select("orders.*", DB::raw("SUM(products.price) AS price"))
+            ->join('order_product', 'order_product.order_id', '=', 'orders.id')
+            ->join('products', 'products.id', '=', 'order_product.product_id')
+            ->groupBy('orders.id')
+            ->get()
+            ;
 
         if (request()->ajax()) {
-            return $result;
+            return $orders;
         }
+
         return view('orders.orders', compact('orders'));
     }
 
