@@ -174,7 +174,7 @@
                 // Middleware handler
                 function redirectUnauthorised (response) {
                     if (response.unauthorised) {
-                        window.location = '/spa#login';
+                        window.location.hash = '#login';
                     }
                 };
 
@@ -410,7 +410,6 @@
                     data.append('name', $('input[id=name]').val());
                     data.append('email', $('input[id=email]').val());
                     data.append('comments', $('textarea[id=comments]').val());
-
 
                     $('.submit').prop('disabled', true);
                     $('.submit').html('{{ __('Please wait') . '...' }}')
