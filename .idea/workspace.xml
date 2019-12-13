@@ -3,12 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="09c80eb0-e246-4009-86cd-3d32e572d816" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Http/Controllers/LoginController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/LoginController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Http/Controllers/OrdersController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/OrdersController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Http/Controllers/ProductsController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/ProductsController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Http/Controllers/ShopController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/ShopController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/database.php" beforeDir="false" afterPath="$PROJECT_DIR$/config/database.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/orders/orders.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/orders/orders.blade.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/resources/views/spa.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/spa.blade.php" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/node_modules/" />
@@ -51,6 +45,15 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/Http/Controllers/AuthStateController.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="231">
+              <caret line="11" column="29" selection-start-line="11" selection-start-column="18" selection-end-line="11" selection-end-column="29" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/config/database.php">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="343">
@@ -62,8 +65,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/resources/views/spa.blade.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="441">
-              <caret line="42" column="52" lean-forward="true" selection-start-line="42" selection-start-column="52" selection-end-line="42" selection-end-column="52" />
+            <state relative-caret-position="277">
+              <caret line="15" lean-forward="true" selection-start-line="15" selection-end-line="15" />
               <folding>
                 <element signature="e#2574#5864#0#HTML" />
                 <element signature="e#18816#22145#0#HTML" />
@@ -370,7 +373,7 @@
       <workItem from="1573720445898" duration="117999000" />
       <workItem from="1575017540696" duration="103952000" />
       <workItem from="1576055120838" duration="1611000" />
-      <workItem from="1576141448514" duration="16909000" />
+      <workItem from="1576141448514" duration="18415000" />
     </task>
     <task id="LOCAL-00001" summary="Structured pages">
       <created>1573138610511</created>
@@ -547,17 +550,24 @@
       <option name="project" value="LOCAL" />
       <updated>1576149491657</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="#21: Login - http://pm.5psolutions.net/public/index.php?path_info=projects/training-lucian-ionescu/tasks/21 - Implemented auth state check&#10;&#10;#22: Products - http://pm.5psolutions.net/public/index.php?path_info=projects/training-lucian-ionescu/tasks/22 - Updated source code according to specifications provided&#10;&#10;#24: Orders - http://pm.5psolutions.net/public/index.php?path_info=projects/training-lucian-ionescu/tasks/24 - Used aggregated functions on the SQL side&#10;&#10;#27: Order - http://pm.5psolutions.net/public/index.php?path_info=projects/training-lucian-ionescu/tasks/27 - Removed if statement from the specified comment line">
+      <created>1576163106972</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1576163106972</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="316846000" />
+    <option name="totallyTimeSpent" value="318352000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1296" height="776" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.14158577" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.14158577" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="npm" order="2" side_tool="true" />
       <window_info id="Favorites" order="3" side_tool="true" />
@@ -613,7 +623,8 @@
     <MESSAGE value="Spa updates." />
     <MESSAGE value="#18: Documentation and starter - http://pm.5psolutions.net/public/index.php?path_info=projects/training-lucian-ionescu/tasks/18 - Removed .idea folder" />
     <MESSAGE value="#21: Login - http://pm.5psolutions.net/public/index.php?path_info=projects/training-lucian-ionescu/tasks/21 - Implemented auth state check" />
-    <option name="LAST_COMMIT_MESSAGE" value="#21: Login - http://pm.5psolutions.net/public/index.php?path_info=projects/training-lucian-ionescu/tasks/21 - Implemented auth state check" />
+    <MESSAGE value="#21: Login - http://pm.5psolutions.net/public/index.php?path_info=projects/training-lucian-ionescu/tasks/21 - Implemented auth state check&#10;&#10;#22: Products - http://pm.5psolutions.net/public/index.php?path_info=projects/training-lucian-ionescu/tasks/22 - Updated source code according to specifications provided&#10;&#10;#24: Orders - http://pm.5psolutions.net/public/index.php?path_info=projects/training-lucian-ionescu/tasks/24 - Used aggregated functions on the SQL side&#10;&#10;#27: Order - http://pm.5psolutions.net/public/index.php?path_info=projects/training-lucian-ionescu/tasks/27 - Removed if statement from the specified comment line" />
+    <option name="LAST_COMMIT_MESSAGE" value="#21: Login - http://pm.5psolutions.net/public/index.php?path_info=projects/training-lucian-ionescu/tasks/21 - Implemented auth state check&#10;&#10;#22: Products - http://pm.5psolutions.net/public/index.php?path_info=projects/training-lucian-ionescu/tasks/22 - Updated source code according to specifications provided&#10;&#10;#24: Orders - http://pm.5psolutions.net/public/index.php?path_info=projects/training-lucian-ionescu/tasks/24 - Used aggregated functions on the SQL side&#10;&#10;#27: Order - http://pm.5psolutions.net/public/index.php?path_info=projects/training-lucian-ionescu/tasks/27 - Removed if statement from the specified comment line" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -878,13 +889,6 @@
     <entry file="file://$PROJECT_DIR$/app/Http/Controllers/Controller.php">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/Http/Controllers/AuthStateController.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="231">
-          <caret line="11" column="29" selection-start-line="11" selection-start-column="18" selection-end-line="11" selection-end-column="29" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/Http/Controllers/LoginController.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="364">
@@ -956,10 +960,17 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/app/Http/Controllers/AuthStateController.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="231">
+          <caret line="11" column="29" selection-start-line="11" selection-start-column="18" selection-end-line="11" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/resources/views/spa.blade.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="441">
-          <caret line="42" column="52" lean-forward="true" selection-start-line="42" selection-start-column="52" selection-end-line="42" selection-end-column="52" />
+        <state relative-caret-position="277">
+          <caret line="15" lean-forward="true" selection-start-line="15" selection-end-line="15" />
           <folding>
             <element signature="e#2574#5864#0#HTML" />
             <element signature="e#18816#22145#0#HTML" />

@@ -18,33 +18,12 @@
                             loginVar.attr('id', 'logout-btn');
                             $('#logout-btn').attr('href', '#logout');
                             $('#logout-btn').html('<strong>{{ __('Log Out') }}</strong>');
-                        } else {
+                        } else if (response.auth == false || response.auth == null){
                             loginVar.html(`<strong>{{ __('Log In') }}</strong>`);
                             loginVar.attr('href', '#login');
                         }
                     }
                 })
-
-                // Create a variable that holds the product ID
-                let editId;
-
-                $(document).on('click', '.edit-product', function () {
-                    editId = $(this).data('id');
-
-                    window.location.hash = '#product/' + editId + '/edit';
-                })
-
-                // Create a variable that holds the order ID
-                let orderId;
-
-                $(document).on('click', '.view-order', function () {
-                    orderId = $(this).data('id');
-
-                    $('.order .order-view').empty();
-                    $('.order .order-list').empty();
-
-                    window.location.hash = '#order/' + orderId;
-                });
 
                 /**
                  * A function that takes a products array and renders it's html
@@ -272,12 +251,12 @@
                                }
                             }
 
-                            if (parts[1] == editId && parts[2] == 'edit') {
+                            if (parts[2] === 'edit') {
                                 $('.product-form').each(function () {
                                     this.reset();
                                 })
 
-                                $.ajax('/products/' + editId + '/edit', {
+                                $.ajax('/products/' + parts[1] + '/edit', {
                                     dataType: 'json',
                                     success: function (response) {
                                         redirectUnauthorised(response);
@@ -318,7 +297,7 @@
                                 $.ajax('/order', {
                                     dataType: 'json',
                                     data: {
-                                        id: orderId
+                                        id: parts[1]
                                     },
                                     success: function (response) {
                                         redirectUnauthorised(response);
@@ -389,6 +368,19 @@
                             window.onhashchange();
                         }
                     });
+                });
+
+                // Redirect to product edit page
+                $(document).on('click', '.edit-product', function () {
+                    window.location.hash = '#product/' + $(this).data('id') + '/edit';
+                })
+
+                // View the individual order
+                $(document).on('click', '.view-order', function () {
+                    $('.order .order-view').empty();
+                    $('.order .order-list').empty();
+
+                    window.location.hash = '#order/' + $(this).data('id');;
                 });
 
                 // Delete product from database functionality
